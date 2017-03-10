@@ -2,6 +2,7 @@
   "version": "1.0.0-*",
 
   "dependencies": {
+    "MsgPack.Cli": "0.8.1",
     "NETStandard.Library": "1.6.1"
   },
 
