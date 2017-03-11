@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Tarantool.Client.Models;
+
+[assembly: InternalsVisibleTo("Tarantool.Client.Tests")]
 
 namespace Tarantool.Client
 {

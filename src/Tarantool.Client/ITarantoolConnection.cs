@@ -2,6 +2,10 @@
 {
     internal interface ITarantoolConnection
     {
-        bool IsAcquired { get; set; }
+        void Acquire();
+
+        void Release();
+
+        bool IsAcquired { get; }
     }
 }

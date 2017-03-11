@@ -4,12 +4,13 @@
     "debugType": "portable"
   },
   "dependencies": {
-    "System.Runtime.Serialization.Primitives": "4.1.1",
+    "System.Runtime.Serialization.Primitives": "4.3.0",
     "xunit": "2.2.0",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Tarantool.Client": {
       "target": "project"
-    }
+    },
+    "Moq": "4.7.1"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -17,7 +18,7 @@
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.1.0"
+          "version": "1.1.1"
         }
       },
       "imports": "dnxcore50"

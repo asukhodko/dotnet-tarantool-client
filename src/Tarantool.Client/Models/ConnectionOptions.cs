@@ -11,16 +11,21 @@ namespace Tarantool.Client.Models
             Nodes = new List<Uri>();
 
             foreach (var url in connectionString.Split(','))
-                Nodes.Add(url.StartsWith("tarantool://")
-                    ? new Uri(url)
-                    : new Uri("tarantool://" + url));
+            {
+                var node = url.StartsWith("tarantool://")
+                    ? new UriBuilder(url)
+                    : new UriBuilder("tarantool://" + url);
+                if (node.Port == -1)
+                    node.Port = 3301;
+                Nodes.Add(node.Uri);
+            }
         }
 
         public List<Uri> Nodes { get; set; }
 
         public override string ToString()
         {
-            return string.Join(",", Nodes.Select(x => x.ToString()));
+            return "tarantool://" + string.Join(",", Nodes.Select(x => x.Host + ":" + x.Port));
         }
     }
 }

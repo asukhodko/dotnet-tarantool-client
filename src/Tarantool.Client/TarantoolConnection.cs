@@ -11,6 +11,16 @@ namespace Tarantool.Client
             _connectionOptions = connectionOptions;
         }
 
-        public bool IsAcquired { get; set; }
+        public bool IsAcquired { get; private set; }
+
+        public void Acquire()
+        {
+            IsAcquired = true;
+        }
+
+        public void Release()
+        {
+            IsAcquired = false;
+        }
     }
 }

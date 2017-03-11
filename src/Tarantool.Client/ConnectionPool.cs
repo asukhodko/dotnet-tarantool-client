@@ -29,7 +29,16 @@ namespace Tarantool.Client
 
         private AcquiredConnection AcquireConnection()
         {
-            return AcquiredConnection.AcquireConnection(_connections, _connectionOptions);
+            lock (_connections)
+            {
+                var connection = _connections.FirstOrDefault(x => !x.IsAcquired);
+                if (connection == null)
+                {
+                    connection = new TarantoolConnection(_connectionOptions);
+                    _connections.Add(connection);
+                }
+                return new AcquiredConnection(connection);
+            }
         }
 
         public static IConnectionPool GetPool(ConnectionOptions connectionOptions)
@@ -42,33 +51,6 @@ namespace Tarantool.Client
                 var pool = new ConnectionPool(connectionOptions);
                 Pools[poolKey] = pool;
                 return pool;
-            }
-        }
-
-        private class AcquiredConnection : IDisposable
-        {
-            private readonly ITarantoolConnection _connection;
-
-            private AcquiredConnection(ITarantoolConnection connection)
-            {
-                _connection = connection;
-            }
-
-            public void Dispose()
-            {
-                _connection.IsAcquired = false;
-            }
-
-            public static AcquiredConnection AcquireConnection(List<ITarantoolConnection> connections,
-                ConnectionOptions connectionOptions)
-            {
-                lock (connections)
-                {
-                    var connection = connections.FirstOrDefault(x => !x.IsAcquired) ??
-                                     new TarantoolConnection(connectionOptions);
-                    connection.IsAcquired = true;
-                    return new AcquiredConnection(connection);
-                }
             }
         }
     }

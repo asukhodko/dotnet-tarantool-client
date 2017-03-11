@@ -3,9 +3,9 @@ using Xunit;
 
 namespace Tarantool.Client
 {
-    public class TarantoolClientTest
+    public class TarantoolClientShould
     {
-        public TarantoolClientTest()
+        public TarantoolClientShould()
         {
             _tarantoolClientGuest = new TarantoolClient(ConnectionStringGuest);
             _tarantoolClient = new TarantoolClient(ConnectionString);
