@@ -8,6 +8,8 @@ namespace Tarantool.Client.Models
     {
         public ConnectionOptions(string connectionString)
         {
+            Nodes = new List<Uri>();
+
             foreach (var url in connectionString.Split(','))
                 Nodes.Add(url.StartsWith("tarantool://")
                     ? new Uri(url)
