@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tarantool.Client.Models;
 
 namespace Tarantool.Client
@@ -24,6 +25,11 @@ namespace Tarantool.Client
                 Pools[poolKey] = pool;
                 return pool;
             }
+        }
+
+        public async Task ConnectAsync()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

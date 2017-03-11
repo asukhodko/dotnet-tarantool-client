@@ -1,4 +1,5 @@
-﻿using Tarantool.Client.Models;
+﻿using System.Threading.Tasks;
+using Tarantool.Client.Models;
 
 namespace Tarantool.Client
 {
@@ -13,6 +14,11 @@ namespace Tarantool.Client
         public TarantoolClient(ConnectionOptions connectionOptions)
         {
             _connectionPool = ConnectionPool.GetPool(connectionOptions);
+        }
+
+        public async Task ConnectAsync()
+        {
+            await _connectionPool.ConnectAsync();
         }
     }
 }
