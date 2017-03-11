@@ -5,7 +5,7 @@ namespace Tarantool.Client
 {
     public class TarantoolClient : ITarantoolClient
     {
-        private IConnectionPool _connectionPool;
+        private readonly IConnectionPool _connectionPool;
 
         public TarantoolClient(string connectionString) : this(new ConnectionOptions(connectionString))
         {

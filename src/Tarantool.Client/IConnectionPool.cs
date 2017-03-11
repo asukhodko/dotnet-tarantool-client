@@ -2,7 +2,7 @@
 
 namespace Tarantool.Client
 {
-    public interface IConnectionPool
+    internal interface IConnectionPool
     {
         Task ConnectAsync();
     }

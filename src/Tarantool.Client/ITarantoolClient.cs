@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tarantool.Client
+﻿namespace Tarantool.Client
 {
     public interface ITarantoolClient
     {
-        
     }
 }
