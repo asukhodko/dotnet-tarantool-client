@@ -13,7 +13,6 @@ namespace Tarantool.Client
         private readonly ConnectionOptions _connectionOptions;
         private readonly List<ITarantoolConnection> _connections = new List<ITarantoolConnection>();
 
-
         private ConnectionPool(ConnectionOptions connectionOptions)
         {
             _connectionOptions = connectionOptions;
@@ -23,7 +22,7 @@ namespace Tarantool.Client
         {
             using (var connection = AcquireConnection())
             {
-                throw new NotImplementedException();
+                await connection.EnsureConnectedAsync();
             }
         }
 

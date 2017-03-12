@@ -14,5 +14,15 @@ namespace Tarantool.Client
 
             Assert.Equal("tarantool://tarantool-node1:3301,tarantool-node2:3301,tarantool-node3:3303", connectionString);
         }
+
+        [Fact]
+        public void GenerateConnectionStringWithCredentials()
+        {
+            var opts = new ConnectionOptions("user:pass@tarantool-node1,tarantool-node2,tarantool-node3:3303");
+
+            var connectionString = opts.ToString();
+
+            Assert.Equal("tarantool://user:pass@tarantool-node1:3301,tarantool-node2:3301,tarantool-node3:3303", connectionString);
+        }
     }
 }

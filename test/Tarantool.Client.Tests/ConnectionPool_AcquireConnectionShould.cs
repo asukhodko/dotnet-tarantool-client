@@ -14,7 +14,6 @@ namespace Tarantool.Client
 
             using (var connection = pool.AcquireConnection())
             {
-
                 Assert.NotNull(connection);
                 Assert.Equal(1, pool._connections().Count);
             }
@@ -30,7 +29,6 @@ namespace Tarantool.Client
 
             using (var connection = pool.AcquireConnection())
             {
-
                 Assert.NotNull(connection);
                 Assert.Equal(1, pool._connections().Count);
             }
@@ -47,7 +45,6 @@ namespace Tarantool.Client
 
                 using (var connection = pool.AcquireConnection())
                 {
-
                     Assert.NotNull(connection);
                     Assert.Equal(2, pool._connections().Count);
                 }

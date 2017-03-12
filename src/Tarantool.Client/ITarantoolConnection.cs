@@ -1,4 +1,6 @@
-﻿namespace Tarantool.Client
+﻿using System.Threading.Tasks;
+
+namespace Tarantool.Client
 {
     internal interface ITarantoolConnection
     {
@@ -7,5 +9,7 @@
         void Release();
 
         bool IsAcquired { get; }
+
+        Task EnsureConnectedAsync();
     }
 }

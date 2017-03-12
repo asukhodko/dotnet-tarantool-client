@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Tarantool.Client
 {
@@ -28,5 +29,10 @@ namespace Tarantool.Client
         }
 
         public bool IsAcquired => _connection.IsAcquired;
+
+        public Task EnsureConnectedAsync()
+        {
+            return _connection.EnsureConnectedAsync();
+        }
     }
 }
