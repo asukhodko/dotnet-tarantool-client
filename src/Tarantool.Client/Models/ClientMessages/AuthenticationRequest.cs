@@ -1,11 +1,11 @@
-﻿using System.IO;
-using MsgPack;
+﻿using MsgPack;
 
 namespace Tarantool.Client.Models.ClientMessages
 {
-    public class AuthenticationBody : ClientMessageBodyBase
+    public class AuthenticationRequest : ClientMessage
     {
-        public AuthenticationBody(string username, byte[] scramble)
+        public AuthenticationRequest(string username, byte[] scramble, ulong requestId)
+            : base(TarantoolCommand.Auth, requestId)
         {
             Username = username;
             Scramble = scramble;
@@ -14,7 +14,7 @@ namespace Tarantool.Client.Models.ClientMessages
         public string Username { get; }
         public byte[] Scramble { get; }
 
-        public override void Pack(Packer packer)
+        protected override void PackBody(Packer packer)
         {
             packer.PackMapHeader(2);
 

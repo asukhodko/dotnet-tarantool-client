@@ -37,9 +37,7 @@ namespace Tarantool.Client
         public async Task EnsureConnectedAsync()
         {
             if (_socket == null)
-            {
                 _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            }
             if (!_socket.Connected)
             {
                 // TODO: deal with all nodes
@@ -64,10 +62,7 @@ namespace Tarantool.Client
 
                 var scrambleBytes = CreateScramble(password, greetingMessage.Salt);
 
-                var authMessage = new ClientMessage(
-                    TarantoolCommand.Auth, _connectionOptions.GetNextRequestId(),
-                    new AuthenticationBody(user, scrambleBytes)
-                );
+                var authMessage = new AuthenticationRequest(user, scrambleBytes, _connectionOptions.GetNextRequestId());
                 await _stream.WriteAsync(authMessage);
                 var response = await _stream.ReadServerMessage();
                 if (response.IsError)

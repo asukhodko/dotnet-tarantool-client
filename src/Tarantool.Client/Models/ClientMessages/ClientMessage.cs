@@ -3,17 +3,15 @@ using MsgPack;
 
 namespace Tarantool.Client.Models.ClientMessages
 {
-    public class ClientMessage
+    public abstract class ClientMessage
     {
-        private readonly ClientMessageBodyBase _body;
         private readonly TarantoolCommand _command;
         private readonly ulong _requestId;
 
-        public ClientMessage(TarantoolCommand command, ulong requestId, ClientMessageBodyBase body)
+        protected ClientMessage(TarantoolCommand command, ulong requestId)
         {
             _command = command;
             _requestId = requestId;
-            _body = body;
         }
 
         public byte[] GetBytes()
@@ -23,7 +21,7 @@ namespace Tarantool.Client.Models.ClientMessages
                 using (var packer = Packer.Create(stream))
                 {
                     PackHeader(packer);
-                    _body.Pack(packer);
+                    PackBody(packer);
                     return stream.ToArray();
                 }
             }
@@ -39,5 +37,7 @@ namespace Tarantool.Client.Models.ClientMessages
             packer.Pack((byte)TarantoolKey.Sync);
             packer.Pack(_requestId);
         }
+
+        protected abstract void PackBody(Packer packer);
     }
 }
