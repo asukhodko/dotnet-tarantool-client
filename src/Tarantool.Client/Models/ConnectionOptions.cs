@@ -20,8 +20,17 @@ namespace Tarantool.Client.Models
                 if (node.Port == -1)
                     node.Port = 3301;
                 Nodes.Add(node.Uri);
+                if (!string.IsNullOrEmpty(node.UserName) && UserName == null)
+                {
+                    UserName = node.UserName;
+                    Password = node.Password;
+                }
             }
         }
+
+        public string Password { get; set; }
+
+        public string UserName { get; set; }
 
         public List<Uri> Nodes { get; set; }
 
@@ -37,9 +46,17 @@ namespace Tarantool.Client.Models
         {
             if (Nodes.Count == 0)
                 return "";
-            var node0 = Nodes.First();
-            return "tarantool://" + (string.IsNullOrEmpty(node0.UserInfo) ? "" : node0.UserInfo + "@") +
-                   string.Join(",", Nodes.Select(x => x.Host + ":" + x.Port));
+            string userInfo;
+            if (UserName == null)
+                userInfo = "";
+            else
+            {
+                userInfo = UserName;
+                if (!string.IsNullOrEmpty(Password))
+                    userInfo += ":" + Password;
+                userInfo += "@";
+            }
+            return $"tarantool://{userInfo}{string.Join(",", Nodes.Select(x => x.Host + ":" + x.Port))}";
         }
     }
 }

@@ -5,6 +5,13 @@ namespace Tarantool.Client
 {
     public class TarantoolClientShould
     {
+        /*
+          Tarantool user setup:
+            box.schema.create_space('test')
+            box.schema.user.create('mytestuser', { password = 'mytestpass' })
+            box.schema.user.grant('mytestuser', 'read,write,execute', 'space', 'test')
+        */
+
         public TarantoolClientShould()
         {
             _tarantoolClientGuest = new TarantoolClient(ConnectionStringGuest);
@@ -14,10 +21,10 @@ namespace Tarantool.Client
         private readonly TarantoolClient _tarantoolClientGuest;
         private readonly TarantoolClient _tarantoolClient;
 
-        private const string ConnectionStringGuest = "tarantool-host:3301,tarantool-host:3302,tarantool-host:3303";
+        private const string ConnectionStringGuest = "guest@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303";
 
         private const string ConnectionString =
-            "myuser:mypass@tarantool-host:3301,myuser:mypass@tarantool-host:3302,myuser:mypass@tarantool-host:3303";
+            "mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303";
 
         [Fact]
         public async Task ConnectAsGuest()

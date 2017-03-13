@@ -57,27 +57,21 @@ namespace Tarantool.Client
             {
                 var greetingMessage = await ReadGreetingMessage();
 
-                var userInfo = _connectionOptions.Nodes.First().UserInfo;
-                var userInfoPair = userInfo?.Split(':');
-                if (userInfoPair == null || userInfoPair.Length != 2)
-                    return;
-
-                var user = userInfoPair[0];
-                var password = userInfoPair[1];
+                var user = _connectionOptions.UserName;
+                var password = _connectionOptions.Password;
+                if (string.IsNullOrEmpty(user))
+                    user = "guest";
 
                 var scrambleBytes = CreateScramble(password, greetingMessage.Salt);
 
-                var authRequestId = _connectionOptions.GetNextRequestId();
-
                 var authMessage = new ClientMessage(
-                    new ClientMessageHeader(TarantoolCommand.Auth, authRequestId),
+                    new ClientMessageHeader(TarantoolCommand.Auth, _connectionOptions.GetNextRequestId()),
                     new AuthenticationBody(user, scrambleBytes)
                 );
                 await _stream.WriteAsync(authMessage);
                 var response = await _stream.ReadServerMessage();
-                if(response.IsError)
+                if (response.IsError)
                     throw new Exception(response.ErrorMessage);
-                throw new NotImplementedException();
             }
             catch (Exception ex)
             {
