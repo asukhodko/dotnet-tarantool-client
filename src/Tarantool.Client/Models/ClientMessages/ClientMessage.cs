@@ -6,11 +6,13 @@ namespace Tarantool.Client.Models.ClientMessages
     public class ClientMessage
     {
         private readonly ClientMessageBodyBase _body;
-        private readonly ClientMessageHeader _header;
+        private readonly TarantoolCommand _command;
+        private readonly ulong _requestId;
 
-        public ClientMessage(ClientMessageHeader header, ClientMessageBodyBase body)
+        public ClientMessage(TarantoolCommand command, ulong requestId, ClientMessageBodyBase body)
         {
-            _header = header;
+            _command = command;
+            _requestId = requestId;
             _body = body;
         }
 
@@ -20,11 +22,22 @@ namespace Tarantool.Client.Models.ClientMessages
             {
                 using (var packer = Packer.Create(stream))
                 {
-                    _header.Pack(packer);
+                    PackHeader(packer);
                     _body.Pack(packer);
                     return stream.ToArray();
                 }
             }
+        }
+
+        private void PackHeader(Packer packer)
+        {
+            packer.PackMapHeader(2);
+
+            packer.Pack((byte)TarantoolKey.Code);
+            packer.Pack((byte)_command);
+
+            packer.Pack((byte)TarantoolKey.Sync);
+            packer.Pack(_requestId);
         }
     }
 }

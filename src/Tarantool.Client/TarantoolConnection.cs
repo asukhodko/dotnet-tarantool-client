@@ -65,7 +65,7 @@ namespace Tarantool.Client
                 var scrambleBytes = CreateScramble(password, greetingMessage.Salt);
 
                 var authMessage = new ClientMessage(
-                    new ClientMessageHeader(TarantoolCommand.Auth, _connectionOptions.GetNextRequestId()),
+                    TarantoolCommand.Auth, _connectionOptions.GetNextRequestId(),
                     new AuthenticationBody(user, scrambleBytes)
                 );
                 await _stream.WriteAsync(authMessage);
