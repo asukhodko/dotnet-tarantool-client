@@ -55,10 +55,8 @@ namespace Tarantool.Client
             {
                 var greetingMessage = await ReadGreetingMessage();
 
-                var user = _connectionOptions.UserName;
-                var password = _connectionOptions.Password;
-                if (string.IsNullOrEmpty(user))
-                    user = "guest";
+                var user = _connectionOptions.UserName ?? "guest";
+                var password = _connectionOptions.Password ?? "";
 
                 var scrambleBytes = CreateScramble(password, greetingMessage.Salt);
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Tarantool.Client
@@ -12,30 +13,29 @@ namespace Tarantool.Client
             box.schema.user.grant('mytestuser', 'read,write,execute', 'space', 'test')
         */
 
-        public TarantoolClientShould()
-        {
-            _tarantoolClientGuest = new TarantoolClient(ConnectionStringGuest);
-            _tarantoolClient = new TarantoolClient(ConnectionString);
-        }
-
-        private readonly TarantoolClient _tarantoolClientGuest;
-        private readonly TarantoolClient _tarantoolClient;
-
-        private const string ConnectionStringGuest = "guest@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303";
-
-        private const string ConnectionString =
-            "mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303";
-
         [Fact]
         public async Task ConnectAsGuest()
         {
-            await _tarantoolClientGuest.ConnectAsync();
+            var tarantoolClient = new TarantoolClient("tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            await tarantoolClient.ConnectAsync();
         }
 
         [Fact]
         public async Task ConnectAsUser()
         {
-            await _tarantoolClient.ConnectAsync();
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            await tarantoolClient.ConnectAsync();
+        }
+
+        [Fact]
+        public async Task NotConnectAsInvalidUser()
+        {
+            var tarantoolClient =
+                new TarantoolClient("invaliduser:invalidpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+
+            var ex = await Assert.ThrowsAsync<Exception>(()=>tarantoolClient.ConnectAsync());
+            Assert.Equal("User 'invaliduser' is not found", ex.Message);
         }
     }
 }
