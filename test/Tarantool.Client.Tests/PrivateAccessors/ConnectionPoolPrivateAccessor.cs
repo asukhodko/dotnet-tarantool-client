@@ -8,7 +8,7 @@ namespace Tarantool.Client.Tests.PrivateAccessors
         internal static AcquiredConnection AcquireConnection(this ConnectionPool pool)
         {
             var method = typeof(ConnectionPool).GetMethod("AcquireConnection", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (AcquiredConnection)method.Invoke(pool, new object[0]);
+            return (AcquiredConnection)method.Invoke(pool, new object[] {});
         }
 
         internal static List<ITarantoolConnection> _connections(this ConnectionPool pool)
