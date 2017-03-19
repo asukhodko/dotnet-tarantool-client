@@ -26,6 +26,11 @@ namespace Tarantool.Client
             await _connectionPool.ConnectAsync();
         }
 
+        public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
+        {
+            return await _connectionPool.SelectAsync(spaceId, indexId);
+        }
+
         public async Task<IList<MessagePackObject>> EvalAsync(string expression)
         {
             return await _connectionPool.EvalAsync(expression, null);

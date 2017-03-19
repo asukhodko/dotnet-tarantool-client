@@ -23,5 +23,10 @@ namespace Tarantool.Client
         {
             return _connection.EvalAsync(expression, args);
         }
+
+        public Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
+        {
+            return _connection.SelectAsync(spaceId, indexId);
+        }
     }
 }

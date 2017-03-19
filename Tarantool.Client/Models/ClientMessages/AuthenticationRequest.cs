@@ -4,15 +4,13 @@ namespace Tarantool.Client.Models.ClientMessages
 {
     public class AuthenticationRequest : ClientMessageBase
     {
-        public AuthenticationRequest(ulong requestId, string username, byte[] scramble)
+        public AuthenticationRequest(ulong requestId)
             : base(TarantoolCommand.Auth, requestId)
         {
-            Username = username;
-            Scramble = scramble;
         }
 
-        public string Username { get; }
-        public byte[] Scramble { get; }
+        public string Username { get; set; }
+        public byte[] Scramble { get; set; }
 
         protected override void PackBody(Packer packer)
         {

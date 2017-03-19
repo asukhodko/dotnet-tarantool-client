@@ -4,21 +4,20 @@ namespace Tarantool.Client.Models.ClientMessages
 {
     public class EvalRequest : ClientMessageBase
     {
-        public EvalRequest(ulong requestId, string expression, long[] args)
+        public EvalRequest(ulong requestId)
             : base(TarantoolCommand.Eval, requestId)
         {
-            Expression = expression;
-            if (args == null)
-                args = new long[0];
-            Args = args;
         }
 
-        public long[] Args { get; }
+        public string Expression { get; set; }
 
-        public string Expression { get; }
+        public long[] Args { get; set; }
 
         protected override void PackBody(Packer packer)
         {
+            if (Args == null)
+                Args = new long[0];
+
             packer.PackMapHeader(2);
 
             packer.Pack((byte)TarantoolKey.Expression);

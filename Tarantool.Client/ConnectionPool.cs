@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MsgPack;
@@ -22,7 +23,14 @@ namespace Tarantool.Client
         {
             using (await AcquireConnectionAsync())
             {
-                
+            }
+        }
+
+        public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
+        {
+            using (var connection = await AcquireConnectionAsync())
+            {
+                return await connection.SelectAsync(spaceId, indexId);
             }
         }
 
@@ -32,6 +40,19 @@ namespace Tarantool.Client
             {
                 return await connection.EvalAsync(expression, args);
             }
+        }
+
+        public void Dispose()
+        {
+            foreach (var connection in _connections)
+                try
+                {
+                    connection.Dispose();
+                }
+                catch
+                {
+                    // ignored
+                }
         }
 
         private async Task<IAcquiredConnection> AcquireConnectionAsync()
@@ -50,9 +71,7 @@ namespace Tarantool.Client
                 acquiredConnection = new AcquiredConnection(connection);
             }
             if (newTarantoolConnection != null)
-            {
                 await PrepareConnectionAsync(newTarantoolConnection);
-            }
             return acquiredConnection;
         }
 
@@ -86,21 +105,6 @@ namespace Tarantool.Client
                 var pool = new ConnectionPool(connectionOptions);
                 Pools[poolKey] = pool;
                 return pool;
-            }
-        }
-
-        public void Dispose()
-        {
-            foreach (var connection in _connections)
-            {
-                try
-                {
-                    connection.Dispose();
-                }
-                catch
-                {
-                    // ignored
-                }
             }
         }
     }

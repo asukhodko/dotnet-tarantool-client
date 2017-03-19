@@ -12,6 +12,7 @@ namespace Tarantool.Client
             box.schema.create_space('test', {user = 'mytestuser'})
             box.schema.user.grant('mytestuser', 'read,write', 'space', '_index')
             box.schema.user.grant('mytestuser', 'execute', 'universe')
+            box.space.test:create_index('primary', {type = 'hash', parts = {1, 'unsigned'}})
         */
 
         [Fact]
