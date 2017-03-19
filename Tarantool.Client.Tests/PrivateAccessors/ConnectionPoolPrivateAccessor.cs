@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Tarantool.Client.Tests.PrivateAccessors
 {
     public static class ConnectionPoolPrivateAccessor
     {
-        internal static AcquiredConnection AcquireConnection(this ConnectionPool pool)
+        internal static Task<IAcquiredConnection> AcquireConnectionAsync(this ConnectionPool pool)
         {
-            var method = typeof(ConnectionPool).GetMethod("AcquireConnection", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (AcquiredConnection)method.Invoke(pool, new object[] {});
+            var method = typeof(ConnectionPool).GetMethod("AcquireConnectionAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (Task<IAcquiredConnection>)method.Invoke(pool, new object[] {});
         }
 
         internal static List<ITarantoolConnection> _connections(this ConnectionPool pool)

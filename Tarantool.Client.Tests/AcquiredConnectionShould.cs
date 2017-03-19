@@ -7,7 +7,7 @@ namespace Tarantool.Client
         [Fact]
         public void BeAcquiredThenReleased()
         {
-            var connection = new TarantoolConnection(null);
+            var connection = new TarantoolConnection(null, 0);
 
             Assert.False(connection.IsAcquired);
             using (new AcquiredConnection(connection))

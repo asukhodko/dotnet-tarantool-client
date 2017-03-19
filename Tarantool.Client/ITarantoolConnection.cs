@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Tarantool.Client
 {
-    internal interface ITarantoolConnection
+    internal interface ITarantoolConnection: IDisposable
     {
         void Acquire();
 
@@ -10,6 +11,10 @@ namespace Tarantool.Client
 
         bool IsAcquired { get; }
 
-        Task EnsureConnectedAsync();
+        Task ConnectAsync();
+
+        Task<Exception> WhenDisconnected { get; }
+
+        bool IsConnected { get; }
     }
 }

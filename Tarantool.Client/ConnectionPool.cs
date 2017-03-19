@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tarantool.Client.Models;
@@ -20,24 +19,52 @@ namespace Tarantool.Client
 
         public async Task ConnectAsync()
         {
-            using (var connection = AcquireConnection())
+            using (var connection = await AcquireConnectionAsync())
             {
-                await connection.EnsureConnectedAsync();
+                
             }
         }
 
-        private AcquiredConnection AcquireConnection()
+        private async Task<IAcquiredConnection> AcquireConnectionAsync()
         {
+            IAcquiredConnection acquiredConnection;
+            ITarantoolConnection newTarantoolConnection = null;
             lock (_connections)
             {
                 var connection = _connections.FirstOrDefault(x => !x.IsAcquired);
                 if (connection == null)
                 {
-                    connection = new TarantoolConnection(_connectionOptions);
-                    _connections.Add(connection);
+                    newTarantoolConnection = new TarantoolConnection(_connectionOptions, 0);
+                    _connections.Add(newTarantoolConnection);
+                    connection = newTarantoolConnection;
                 }
-                return new AcquiredConnection(connection);
+                acquiredConnection = new AcquiredConnection(connection);
             }
+            if (newTarantoolConnection != null)
+            {
+                await PrepareConnectionAsync(newTarantoolConnection);
+            }
+            return acquiredConnection;
+        }
+
+        private async Task PrepareConnectionAsync(ITarantoolConnection connection)
+        {
+            await connection.ConnectAsync();
+            connection.WhenDisconnected.ConfigureAwait(false).GetAwaiter().OnCompleted(() =>
+            {
+                lock (_connections)
+                {
+                    _connections.Remove(connection);
+                    try
+                    {
+                        connection.Dispose();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+            });
         }
 
         public static IConnectionPool GetPool(ConnectionOptions connectionOptions)
@@ -50,6 +77,21 @@ namespace Tarantool.Client
                 var pool = new ConnectionPool(connectionOptions);
                 Pools[poolKey] = pool;
                 return pool;
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var connection in _connections)
+            {
+                try
+                {
+                    connection.Dispose();
+                }
+                catch
+                {
+                    // ignored
+                }
             }
         }
     }

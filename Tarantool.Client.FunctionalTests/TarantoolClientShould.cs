@@ -35,7 +35,7 @@ namespace Tarantool.Client
                 new TarantoolClient(
                     "invaliduser:invalidpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
 
-            var ex = await Assert.ThrowsAsync<Exception>(() => tarantoolClient.ConnectAsync());
+            var ex = await Assert.ThrowsAsync<TarantoolException>(() => tarantoolClient.ConnectAsync());
             Assert.Equal("User 'invaliduser' is not found", ex.Message);
         }
     }

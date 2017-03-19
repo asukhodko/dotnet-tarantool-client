@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Tarantool.Client
 {
-    internal interface IConnectionPool
+    internal interface IConnectionPool: IDisposable
     {
         Task ConnectAsync();
     }

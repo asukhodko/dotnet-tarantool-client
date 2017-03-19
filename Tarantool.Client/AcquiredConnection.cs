@@ -1,9 +1,6 @@
-using System;
-using System.Threading.Tasks;
-
 namespace Tarantool.Client
 {
-    internal class AcquiredConnection : IDisposable, ITarantoolConnection
+    internal class AcquiredConnection : IAcquiredConnection
     {
         private readonly ITarantoolConnection _connection;
 
@@ -16,23 +13,6 @@ namespace Tarantool.Client
         public void Dispose()
         {
             _connection.Release();
-        }
-
-        public void Acquire()
-        {
-            throw new NotSupportedException("Connection already acquired.");
-        }
-
-        public void Release()
-        {
-            throw new NotSupportedException("Use Dispose() instead.");
-        }
-
-        public bool IsAcquired => _connection.IsAcquired;
-
-        public Task EnsureConnectedAsync()
-        {
-            return _connection.EnsureConnectedAsync();
         }
     }
 }
