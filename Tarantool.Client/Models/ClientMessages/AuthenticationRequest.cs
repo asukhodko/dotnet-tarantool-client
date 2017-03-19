@@ -2,9 +2,9 @@
 
 namespace Tarantool.Client.Models.ClientMessages
 {
-    public class AuthenticationRequest : ClientMessage
+    public class AuthenticationRequest : ClientMessageBase
     {
-        public AuthenticationRequest(string username, byte[] scramble, ulong requestId)
+        public AuthenticationRequest(ulong requestId, string username, byte[] scramble)
             : base(TarantoolCommand.Auth, requestId)
         {
             Username = username;

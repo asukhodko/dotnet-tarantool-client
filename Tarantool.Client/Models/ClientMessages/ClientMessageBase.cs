@@ -3,12 +3,12 @@ using MsgPack;
 
 namespace Tarantool.Client.Models.ClientMessages
 {
-    public abstract class ClientMessage
+    public abstract class ClientMessageBase
     {
         private readonly TarantoolCommand _command;
         private readonly ulong _requestId;
 
-        protected ClientMessage(TarantoolCommand command, ulong requestId)
+        protected ClientMessageBase(TarantoolCommand command, ulong requestId)
         {
             _command = command;
             _requestId = requestId;

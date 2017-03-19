@@ -28,11 +28,12 @@ namespace Tarantool.Client.Models.ServerMessages
                             break;
                     }
                 }
-                var body = unpacker.ReadItem()?.AsDictionary();
-                if (body != null)
-                    foreach (var key in body.Keys)
+                var body = unpacker.ReadItem();
+                var bodyDict = body?.AsDictionary();
+                if (bodyDict != null)
+                    foreach (var key in bodyDict.Keys)
                     {
-                        var value = body[key];
+                        var value = bodyDict[key];
                         switch ((TarantoolKey)key.AsInt32())
                         {
                             case TarantoolKey.Data:

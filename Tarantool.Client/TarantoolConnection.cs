@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using MsgPack;
 using Tarantool.Client.Helpers;
 using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
@@ -79,6 +80,26 @@ namespace Tarantool.Client
             await HandshakeAsync();
         }
 
+        /// <exception cref="System.IO.IOException">An I/O error occurs. </exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
+        /// <exception cref="TarantoolException"></exception>
+        public async Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
+        {
+            CheckDisposed();
+            var requestId = _connectionOptions.GetNextRequestId();
+
+            var evalMessage = new EvalRequest(requestId, expression, args);
+            // ReSharper disable once ExceptionNotDocumentedOptional
+            await _stream.WriteAsync(evalMessage);
+
+            var response = await GetResponseAsync(requestId);
+            if (response.IsError)
+                throw new TarantoolException(response.ErrorMessage);
+            var resultList = response.Body.AsList();
+            return resultList;
+        }
+
         /// <exception cref="ObjectDisposedException"></exception>
         private void CheckDisposed()
         {
@@ -141,7 +162,7 @@ namespace Tarantool.Client
                 var scrambleBytes = CreateScramble(password, greetingMessage.Salt);
 
                 var requestId = _connectionOptions.GetNextRequestId();
-                var authMessage = new AuthenticationRequest(user, scrambleBytes, requestId);
+                var authMessage = new AuthenticationRequest(requestId, user, scrambleBytes);
                 await _stream.WriteAsync(authMessage);
 
                 var response = await GetResponseAsync(requestId);
@@ -161,9 +182,13 @@ namespace Tarantool.Client
         {
             var messageTcs = GetServerMessageTcs(requestId);
             await Task.WhenAny(messageTcs.Task, WhenDisconnected);
-            if (messageTcs.Task.IsCompleted)
-                return messageTcs.Task.Result;
-            throw new TarantoolException("Connection closed.");
+            if (!messageTcs.Task.IsCompleted)
+                throw new TarantoolException("Connection closed.");
+            lock (_serverMessagesTcss)
+            {
+                _serverMessagesTcss.Remove(requestId);
+            }
+            return messageTcs.Task.Result;
         }
 
         private async Task<GreetingServerMessage> ReadGreetingMessageAsync()

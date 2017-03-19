@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using MsgPack;
 
 namespace Tarantool.Client
 {
@@ -16,5 +18,7 @@ namespace Tarantool.Client
         Task<Exception> WhenDisconnected { get; }
 
         bool IsConnected { get; }
+
+        Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args);
     }
 }

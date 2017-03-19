@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MsgPack;
 using Tarantool.Client.Models;
 
 namespace Tarantool.Client
@@ -19,9 +20,17 @@ namespace Tarantool.Client
 
         public async Task ConnectAsync()
         {
-            using (var connection = await AcquireConnectionAsync())
+            using (await AcquireConnectionAsync())
             {
                 
+            }
+        }
+
+        public async Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
+        {
+            using (var connection = await AcquireConnectionAsync())
+            {
+                return await connection.EvalAsync(expression, args);
             }
         }
 

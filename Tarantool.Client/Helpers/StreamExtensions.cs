@@ -46,16 +46,17 @@ namespace Tarantool.Client.Helpers
                 throw new ProtocolViolationException("Unexpected read bytes count.");
             var messageLength = unpackedMessageLength.Value;
             var messageBytes = await stream.ReadExactlyBytesAsync((int)messageLength);
-            return new ServerMessage(messageBytes);
+            var serverMessage = new ServerMessage(messageBytes);
+            return serverMessage;
         }
 
         /// <exception cref="System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         /// <exception cref="System.NotSupportedException">The stream does not support writing, or the stream is already closed. </exception>
         /// <exception cref="System.InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
         /// <exception cref="IOException">An I/O error occurs. </exception>
-        public static async Task WriteAsync(this Stream stream, ClientMessage message)
+        public static async Task WriteAsync(this Stream stream, ClientMessageBase messageBase)
         {
-            var messageBytes = message.GetBytes();
+            var messageBytes = messageBase.GetBytes();
             // ReSharper disable once ExceptionNotDocumented
             var messageLength = messageBytes.Length;
             stream.WriteByte(0xce);

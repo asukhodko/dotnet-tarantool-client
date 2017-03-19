@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using MsgPack;
+
 namespace Tarantool.Client
 {
     internal class AcquiredConnection : IAcquiredConnection
@@ -13,6 +17,11 @@ namespace Tarantool.Client
         public void Dispose()
         {
             _connection.Release();
+        }
+
+        public Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
+        {
+            return _connection.EvalAsync(expression, args);
         }
     }
 }
