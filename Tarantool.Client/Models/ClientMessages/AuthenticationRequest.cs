@@ -4,8 +4,8 @@ namespace Tarantool.Client.Models.ClientMessages
 {
     public class AuthenticationRequest : ClientMessageBase
     {
-        public AuthenticationRequest(ulong requestId)
-            : base(TarantoolCommand.Auth, requestId)
+        public AuthenticationRequest()
+            : base(TarantoolCommand.Auth)
         {
         }
 

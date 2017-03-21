@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Models;
+using Tarantool.Client.Models.ClientMessages;
 
 namespace Tarantool.Client
 {
@@ -26,20 +26,30 @@ namespace Tarantool.Client
             }
         }
 
-        public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
+        public async Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
         {
             using (var connection = await AcquireConnectionAsync())
             {
-                return await connection.SelectAsync(spaceId, indexId);
+                return await connection.RequestAsync(clientMessage);
             }
+        }
+
+        public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
+        {
+            return await RequestAsync(new SelectRequest
+            {
+                SpaceId = spaceId,
+                IndexId = indexId
+            });
         }
 
         public async Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
         {
-            using (var connection = await AcquireConnectionAsync())
+            return await RequestAsync(new EvalRequest
             {
-                return await connection.EvalAsync(expression, args);
-            }
+                Expression = expression,
+                Args = args
+            });
         }
 
         public void Dispose()

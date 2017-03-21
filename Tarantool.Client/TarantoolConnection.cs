@@ -84,44 +84,12 @@ namespace Tarantool.Client
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
         /// <exception cref="TarantoolException"></exception>
-        public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
+        public async Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
         {
             CheckDisposed();
-            var requestId = _connectionOptions.GetNextRequestId();
+            await _stream.WriteAsync(clientMessage);
 
-            var selectMessage = new SelectRequest(requestId)
-            {
-                SpaceId = spaceId,
-                IndexId = indexId
-            };
-            // ReSharper disable once ExceptionNotDocumentedOptional
-            await _stream.WriteAsync(selectMessage);
-
-            var response = await GetResponseAsync(requestId);
-            if (response.IsError)
-                throw new TarantoolException(response.ErrorMessage);
-            var resultList = response.Body.AsList();
-            return resultList;
-        }
-
-        /// <exception cref="System.IO.IOException">An I/O error occurs. </exception>
-        /// <exception cref="ObjectDisposedException"></exception>
-        /// <exception cref="InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
-        /// <exception cref="TarantoolException"></exception>
-        public async Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
-        {
-            CheckDisposed();
-            var requestId = _connectionOptions.GetNextRequestId();
-
-            var evalMessage = new EvalRequest(requestId)
-            {
-                Expression = expression,
-                Args = args
-            };
-            // ReSharper disable once ExceptionNotDocumentedOptional
-            await _stream.WriteAsync(evalMessage);
-
-            var response = await GetResponseAsync(requestId);
+            var response = await GetResponseAsync(clientMessage.RequestId);
             if (response.IsError)
                 throw new TarantoolException(response.ErrorMessage);
             var resultList = response.Body.AsList();
@@ -189,18 +157,11 @@ namespace Tarantool.Client
 
                 var scrambleBytes = CreateScramble(password, greetingMessage.Salt);
 
-                var requestId = _connectionOptions.GetNextRequestId();
-                var authMessage = new AuthenticationRequest(requestId)
+                await RequestAsync(new AuthenticationRequest
                 {
                     Username = user,
                     Scramble = scrambleBytes
-                };
-                await _stream.WriteAsync(authMessage);
-
-                var response = await GetResponseAsync(requestId);
-
-                if (response.IsError)
-                    throw new TarantoolException(response.ErrorMessage);
+                });
             }
             catch (Exception ex)
             {

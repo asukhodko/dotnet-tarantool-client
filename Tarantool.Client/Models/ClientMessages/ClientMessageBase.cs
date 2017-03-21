@@ -5,17 +5,29 @@ namespace Tarantool.Client.Models.ClientMessages
 {
     public abstract class ClientMessageBase
     {
-        private readonly TarantoolCommand _command;
-        private readonly ulong _requestId;
+        private static readonly object RequestMutex = new object();
+        private static ulong _nextRequestId = 1000;
 
-        protected ClientMessageBase(TarantoolCommand command, ulong requestId)
+        protected ClientMessageBase(TarantoolCommand command)
         {
-            _command = command;
-            _requestId = requestId;
+            Command = command;
+        }
+
+        public TarantoolCommand Command { get; }
+
+        public ulong RequestId { get; private set; }
+
+        private static ulong GetNextRequestId()
+        {
+            lock (RequestMutex)
+            {
+                return _nextRequestId++;
+            }
         }
 
         public byte[] GetBytes()
         {
+            RequestId = GetNextRequestId();
             using (var stream = new MemoryStream())
             {
                 using (var packer = Packer.Create(stream))
@@ -32,10 +44,10 @@ namespace Tarantool.Client.Models.ClientMessages
             packer.PackMapHeader(2);
 
             packer.Pack((byte)TarantoolKey.Code);
-            packer.Pack((byte)_command);
+            packer.Pack((byte)Command);
 
             packer.Pack((byte)TarantoolKey.Sync);
-            packer.Pack(_requestId);
+            packer.Pack(RequestId);
         }
 
         protected abstract void PackBody(Packer packer);

@@ -5,8 +5,8 @@ namespace Tarantool.Client.Models.ClientMessages
 {
     public class SelectRequest : ClientMessageBase
     {
-        public SelectRequest(ulong requestId)
-            : base(TarantoolCommand.Select, requestId)
+        public SelectRequest()
+            : base(TarantoolCommand.Select)
         {
             Iterator = Iterator.All;
             Limit = int.MaxValue;

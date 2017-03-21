@@ -4,8 +4,8 @@ namespace Tarantool.Client.Models.ClientMessages
 {
     public class EvalRequest : ClientMessageBase
     {
-        public EvalRequest(ulong requestId)
-            : base(TarantoolCommand.Eval, requestId)
+        public EvalRequest()
+            : base(TarantoolCommand.Eval)
         {
         }
 

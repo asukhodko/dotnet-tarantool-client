@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MsgPack;
+using Tarantool.Client.Models.ClientMessages;
 
 namespace Tarantool.Client
 {
@@ -19,14 +20,9 @@ namespace Tarantool.Client
             _connection.Release();
         }
 
-        public Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
+        public Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
         {
-            return _connection.EvalAsync(expression, args);
-        }
-
-        public Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
-        {
-            return _connection.SelectAsync(spaceId, indexId);
+            return _connection.RequestAsync(clientMessage);
         }
     }
 }
