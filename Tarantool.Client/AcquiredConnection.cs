@@ -20,7 +20,7 @@ namespace Tarantool.Client
             _connection.Release();
         }
 
-        public Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
+        public Task<Task<IList<MessagePackObject>>> RequestAsync(ClientMessageBase clientMessage)
         {
             return _connection.RequestAsync(clientMessage);
         }

@@ -84,16 +84,19 @@ namespace Tarantool.Client
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
         /// <exception cref="TarantoolException"></exception>
-        public async Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
+        public async Task<Task<IList<MessagePackObject>>> RequestAsync(ClientMessageBase clientMessage)
         {
             CheckDisposed();
             await _stream.WriteAsync(clientMessage);
 
-            var response = await GetResponseAsync(clientMessage.RequestId);
-            if (response.IsError)
-                throw new TarantoolException(response.ErrorMessage);
-            var resultList = response.Body.AsList();
-            return resultList;
+            return GetResponseAsync(clientMessage.RequestId).ContinueWith(t =>
+            {
+                var response = t.Result;
+                if (response.IsError)
+                    throw new TarantoolException(response.ErrorMessage);
+                var resultList = response.Body.AsList();
+                return resultList;
+            });
         }
 
         /// <exception cref="ObjectDisposedException"></exception>
@@ -157,7 +160,7 @@ namespace Tarantool.Client
 
                 var scrambleBytes = CreateScramble(password, greetingMessage.Salt);
 
-                await RequestAsync(new AuthenticationRequest
+                await await RequestAsync(new AuthenticationRequest
                 {
                     Username = user,
                     Scramble = scrambleBytes

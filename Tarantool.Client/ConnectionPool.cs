@@ -28,10 +28,12 @@ namespace Tarantool.Client
 
         public async Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
         {
+            Task<IList<MessagePackObject>> resultTask;
             using (var connection = await AcquireConnectionAsync())
             {
-                return await connection.RequestAsync(clientMessage);
+                resultTask = await connection.RequestAsync(clientMessage);
             }
+            return await resultTask;
         }
 
         public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)

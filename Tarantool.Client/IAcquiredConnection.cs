@@ -8,6 +8,6 @@ namespace Tarantool.Client
 {
     internal interface IAcquiredConnection : IDisposable
     {
-        Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage);
+        Task<Task<IList<MessagePackObject>>> RequestAsync(ClientMessageBase clientMessage);
     }
 }
