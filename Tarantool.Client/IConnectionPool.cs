@@ -11,9 +11,5 @@ namespace Tarantool.Client
         Task ConnectAsync();
 
         Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage);
-
-        Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId);
-
-        Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args);
     }
 }

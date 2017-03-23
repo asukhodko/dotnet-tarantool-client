@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MsgPack;
 
 namespace Tarantool.Client.Models.ClientMessages
@@ -8,9 +9,9 @@ namespace Tarantool.Client.Models.ClientMessages
         public SelectRequest()
             : base(TarantoolCommand.Select)
         {
-            Iterator = Iterator.All;
+            Iterator = Iterator.Eq;
             Limit = int.MaxValue;
-            Key = new List<object>();
+            Key = new List<dynamic>();
         }
 
         public uint SpaceId { get; set; }
@@ -18,7 +19,7 @@ namespace Tarantool.Client.Models.ClientMessages
         public uint Limit { get; set; }
         public uint Offset { get; set; }
         public Iterator Iterator { get; set; }
-        public List<object> Key { get; set; }
+        public List<dynamic> Key { get; set; }
 
         protected override void PackBody(Packer packer)
         {

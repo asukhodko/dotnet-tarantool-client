@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Models;
+using Tarantool.Client.Models.ClientMessages;
 
 [assembly: InternalsVisibleTo("Tarantool.Client.Tests")]
 
@@ -26,19 +27,10 @@ namespace Tarantool.Client
             await _connectionPool.ConnectAsync();
         }
 
-        public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
+        public async Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
         {
-            return await _connectionPool.SelectAsync(spaceId, indexId);
+            return await _connectionPool.RequestAsync(clientMessage);
         }
-
-        public async Task<IList<MessagePackObject>> EvalAsync(string expression)
-        {
-            return await _connectionPool.EvalAsync(expression, null);
-        }
-
-        public async Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
-        {
-            return await _connectionPool.EvalAsync(expression, args);
-        }
+        
     }
 }

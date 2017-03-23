@@ -36,24 +36,6 @@ namespace Tarantool.Client
             return await resultTask;
         }
 
-        public async Task<IList<MessagePackObject>> SelectAsync(uint spaceId, uint indexId)
-        {
-            return await RequestAsync(new SelectRequest
-            {
-                SpaceId = spaceId,
-                IndexId = indexId
-            });
-        }
-
-        public async Task<IList<MessagePackObject>> EvalAsync(string expression, long[] args)
-        {
-            return await RequestAsync(new EvalRequest
-            {
-                Expression = expression,
-                Args = args
-            });
-        }
-
         public void Dispose()
         {
             foreach (var connection in _connections)
