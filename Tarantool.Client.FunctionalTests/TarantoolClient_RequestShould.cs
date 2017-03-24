@@ -165,18 +165,53 @@ namespace Tarantool.Client
             await tarantoolClient.RequestAsync(new InsertRequest
             {
                 SpaceId = testSpaceId,
-                Tuple = new List<object> { 99, "Some name", 1900 }
+                Tuple = new List<object> { 88, "Some name", 1800 }
             });
 
             var result = await tarantoolClient.RequestAsync(new DeletetRequest
             {
                 SpaceId = testSpaceId,
-                Key = new List<object> { 99 }
+                Key = new List<object> { 88 }
             });
 
             Assert.Equal(1, result.Count);
-            Assert.Equal(new[] { "99", "Some name", "1900" },
+            Assert.Equal(new[] { "88", "Some name", "1800" },
                 result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
+        }
+
+        [Fact]
+        public async Task Replace()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+
+            try
+            {
+                await tarantoolClient.RequestAsync(new InsertRequest
+                {
+                    SpaceId = testSpaceId,
+                    Tuple = new List<object> { 77, "Some name", 1700 }
+                });
+
+                var result = await tarantoolClient.RequestAsync(new ReplaceRequest
+                {
+                    SpaceId = testSpaceId,
+                    Tuple = new List<object> { 77, "Some new name", 1777 }
+                });
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal(new[] { "77", "Some new name", "1777" },
+                    result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
+            }
+            finally
+            {
+                await tarantoolClient.RequestAsync(new DeletetRequest
+                {
+                    SpaceId = testSpaceId,
+                    Key = new List<object> { 77 }
+                });
+            }
         }
 
     }
