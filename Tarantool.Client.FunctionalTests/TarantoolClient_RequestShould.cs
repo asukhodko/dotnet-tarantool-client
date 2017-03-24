@@ -57,7 +57,7 @@ namespace Tarantool.Client
             });
 
             // ? Server returns nothing...
-            Assert.Equal(3, result.Count);
+            Assert.True(result.Count >= 3);
             Assert.Equal(new[] { "1", "Roxette" }, result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
             Assert.Equal(new[] { "2", "Scorpions", "2015" },
                 result[1].AsList().Select(x => x.ToObject().ToString()).ToArray());
@@ -78,7 +78,7 @@ namespace Tarantool.Client
                 Iterator = Iterator.All
             });
 
-            Assert.Equal(3, result.Count);
+            Assert.True(result.Count >= 3);
             Assert.Equal(new[] { "1", "Roxette" }, result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
             Assert.Equal(new[] { "2", "Scorpions", "2015" },
                 result[1].AsList().Select(x => x.ToObject().ToString()).ToArray());
@@ -119,6 +119,63 @@ namespace Tarantool.Client
 
             Assert.Equal(1, result.Count);
             Assert.Equal(new[] { "3", "Ace of Base", "1993" },
+                result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
+        }
+
+        [Fact]
+        public async Task Insert()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            await tarantoolClient.RequestAsync(new DeletetRequest
+            {
+                SpaceId = testSpaceId,
+                Key = new List<object> { 99 }
+            });
+
+            try
+            {
+                var result = await tarantoolClient.RequestAsync(new InsertRequest
+                {
+                    SpaceId = testSpaceId,
+                    Tuple = new List<object> { 99, "Some name", 1900 }
+                });
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal(new[] { "99", "Some name", "1900" },
+                    result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
+            }
+            finally
+            {
+                await tarantoolClient.RequestAsync(new DeletetRequest
+                {
+                    SpaceId = testSpaceId,
+                    Key = new List<object> { 99 }
+                });
+            }
+        }
+
+        [Fact]
+        public async Task Delete()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            await tarantoolClient.RequestAsync(new InsertRequest
+            {
+                SpaceId = testSpaceId,
+                Tuple = new List<object> { 99, "Some name", 1900 }
+            });
+
+            var result = await tarantoolClient.RequestAsync(new DeletetRequest
+            {
+                SpaceId = testSpaceId,
+                Key = new List<object> { 99 }
+            });
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal(new[] { "99", "Some name", "1900" },
                 result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
         }
 
