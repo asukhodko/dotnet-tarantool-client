@@ -15,8 +15,10 @@ namespace Tarantool.Client.Models.ClientMessages
         public uint IndexId { get; set; }
         public IEnumerable<object> Key { get; set; }
 
-        protected override void PackBody(Packer packer)
+        public override void PackToMessage(Packer packer, PackingOptions options)
         {
+            PackHeader(packer);
+
             packer.PackMapHeader(3);
 
             packer.Pack((byte)TarantoolKey.Space);

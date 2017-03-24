@@ -9,6 +9,9 @@ namespace Tarantool.Client.Helpers
 {
     internal static class StreamExtensions
     {
+        private static readonly object RequestMutex = new object();
+        private static ulong _nextRequestId = 1000;
+
         /// <exception cref="EndOfStreamException">Unexpected end of stream.</exception>
         public static async Task ReadExactlyBytesAsync(this Stream stream, byte[] buffer, int offset, int count)
         {
@@ -54,9 +57,21 @@ namespace Tarantool.Client.Helpers
         /// <exception cref="System.NotSupportedException">The stream does not support writing, or the stream is already closed. </exception>
         /// <exception cref="System.InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
         /// <exception cref="IOException">An I/O error occurs. </exception>
-        public static async Task WriteAsync(this Stream stream, ClientMessageBase messageBase)
+        public static async Task WriteAsync(this Stream stream, ClientMessageBase message)
         {
-            var messageBytes = messageBase.GetBytes();
+            message.RequestId = GetNextRequestId();
+
+            byte[] messageBytes;
+
+            using (var ms = new MemoryStream())
+            {
+                using (var packer = Packer.Create(ms))
+                {
+                    message.PackToMessage(packer, null);
+                    messageBytes = ms.ToArray();
+                }
+            }
+
             // ReSharper disable once ExceptionNotDocumented
             var messageLength = messageBytes.Length;
             stream.WriteByte(0xce);
@@ -66,6 +81,14 @@ namespace Tarantool.Client.Helpers
             stream.WriteByte((byte)messageLength);
             // ReSharper disable once ExceptionNotDocumented
             await stream.WriteAsync(messageBytes, 0, messageBytes.Length);
+        }
+
+        private static ulong GetNextRequestId()
+        {
+            lock (RequestMutex)
+            {
+                return _nextRequestId++;
+            }
         }
     }
 }

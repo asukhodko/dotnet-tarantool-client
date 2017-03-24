@@ -3,11 +3,8 @@ using MsgPack;
 
 namespace Tarantool.Client.Models.ClientMessages
 {
-    public abstract class ClientMessageBase
+    public abstract class ClientMessageBase : IPackable
     {
-        private static readonly object RequestMutex = new object();
-        private static ulong _nextRequestId = 1000;
-
         protected ClientMessageBase(TarantoolCommand command)
         {
             Command = command;
@@ -15,31 +12,9 @@ namespace Tarantool.Client.Models.ClientMessages
 
         public TarantoolCommand Command { get; }
 
-        public ulong RequestId { get; private set; }
+        public ulong RequestId { get; set; }
 
-        private static ulong GetNextRequestId()
-        {
-            lock (RequestMutex)
-            {
-                return _nextRequestId++;
-            }
-        }
-
-        public byte[] GetBytes()
-        {
-            RequestId = GetNextRequestId();
-            using (var stream = new MemoryStream())
-            {
-                using (var packer = Packer.Create(stream))
-                {
-                    PackHeader(packer);
-                    PackBody(packer);
-                    return stream.ToArray();
-                }
-            }
-        }
-
-        private void PackHeader(Packer packer)
+        protected void PackHeader(Packer packer)
         {
             packer.PackMapHeader(2);
 
@@ -50,6 +25,6 @@ namespace Tarantool.Client.Models.ClientMessages
             packer.Pack(RequestId);
         }
 
-        protected abstract void PackBody(Packer packer);
+        public abstract void PackToMessage(Packer packer, PackingOptions options);
     }
 }

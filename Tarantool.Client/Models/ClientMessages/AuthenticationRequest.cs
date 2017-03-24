@@ -12,8 +12,10 @@ namespace Tarantool.Client.Models.ClientMessages
         public string Username { get; set; }
         public byte[] Scramble { get; set; }
 
-        protected override void PackBody(Packer packer)
+        public override void PackToMessage(Packer packer, PackingOptions options)
         {
+            PackHeader(packer);
+
             packer.PackMapHeader(2);
 
             packer.Pack((byte)TarantoolKey.UserName);
