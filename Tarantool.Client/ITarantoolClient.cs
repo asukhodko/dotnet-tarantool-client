@@ -10,5 +10,9 @@ namespace Tarantool.Client
         Task ConnectAsync();
 
         Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage);
+
+        Task<IList<MessagePackObject>> FindSpaceByNameAsync(string spaceName);
+
+        Task<IList<MessagePackObject>> FindIndexByNameAsync(uint spaceId, string indexName);
     }
 }
