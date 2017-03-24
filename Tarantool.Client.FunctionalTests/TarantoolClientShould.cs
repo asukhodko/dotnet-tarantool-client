@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Xunit;
 
 namespace Tarantool.Client
@@ -7,12 +6,24 @@ namespace Tarantool.Client
     public class TarantoolClientShould
     {
         /*
-          Tarantool user setup:
+          Tarantool setup:
             box.schema.user.create('mytestuser', { password = 'mytestpass' })
             box.schema.create_space('test', {user = 'mytestuser'})
             box.schema.user.grant('mytestuser', 'read,write', 'space', '_index')
             box.schema.user.grant('mytestuser', 'execute', 'universe')
             box.space.test:create_index('primary', {type = 'hash', parts = {1, 'unsigned'}})
+
+            box.schema.func.create('some_function')
+            box.schema.user.grant('mytestuser', 'execute', 'function', 'some_function')
+
+            function some_function()
+                return "ok"
+            end
+
+            s = box.space.test
+            s:insert({1, 'Roxette'})
+            s:insert({2, 'Scorpions', 2015})
+            s:insert({3, 'Ace of Base', 1993})
         */
 
         [Fact]

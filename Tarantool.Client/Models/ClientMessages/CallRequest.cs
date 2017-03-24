@@ -3,15 +3,15 @@ using MsgPack;
 
 namespace Tarantool.Client.Models.ClientMessages
 {
-    public class EvalRequest : ClientMessageBase
+    public class CallRequest : ClientMessageBase
     {
-        public EvalRequest()
-            : base(TarantoolCommand.Eval)
+        public CallRequest()
+            : base(TarantoolCommand.Call)
         {
             Args = new List<object>();
         }
 
-        public string Expression { get; set; }
+        public string FunctionName { get; set; }
 
         public IEnumerable<object> Args { get; set; }
 
@@ -19,8 +19,8 @@ namespace Tarantool.Client.Models.ClientMessages
         {
             packer.PackMapHeader(2);
 
-            packer.Pack((byte)TarantoolKey.Expression);
-            packer.Pack(Expression);
+            packer.Pack((byte)TarantoolKey.Function);
+            packer.Pack(FunctionName);
 
             packer.Pack((byte)TarantoolKey.Tuple);
             // ReSharper disable once ExceptionNotDocumented

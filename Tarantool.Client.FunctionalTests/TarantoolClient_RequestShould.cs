@@ -32,19 +32,12 @@ namespace Tarantool.Client
             var result = await tarantoolClient.RequestAsync(new EvalRequest
             {
                 Expression = "return ...",
-                Args = new long[] { 912345, 923456, 934567 }
+                Args = new List<object> { 912345, 923456, 934567 }
             });
 
             Assert.Equal(new[] { 912345, 923456, 934567 }, result.Select(x => x.AsInt32()));
         }
 
-        /*
-          Data setup:
-            s = box.space.test
-            s:insert({1, 'Roxette'})
-            s:insert({2, 'Scorpions', 2015})
-            s:insert({3, 'Ace of Base', 1993})
-        */
         [Fact]
         public async Task EvaluateSelect()
         {
@@ -56,7 +49,7 @@ namespace Tarantool.Client
                 Expression = "box.space.test:select{}"
             });
 
-            // ? Server returns nothing...
+            // ? Server returns nothing... Why?..
             Assert.True(result.Count >= 3);
             Assert.Equal(new[] { "1", "Roxette" }, result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
             Assert.Equal(new[] { "2", "Scorpions", "2015" },
@@ -212,6 +205,21 @@ namespace Tarantool.Client
                     Key = new List<object> { 77 }
                 });
             }
+        }
+
+        [Fact]
+        public async Task CallSomeFunction()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+
+            var result = await tarantoolClient.RequestAsync(new CallRequest
+            {
+                FunctionName = "some_function"
+            });
+
+            Assert.True(result.Count == 1);
+            Assert.Equal("ok", result[0].AsString());
         }
 
     }
