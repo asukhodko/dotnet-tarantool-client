@@ -16,8 +16,8 @@ namespace Tarantool.Client.Helpers
         public static string GetStringValue(Enum enumVal)
         {
             var type = enumVal.GetType();
-            var memInfo = type.GetMember(enumVal.ToString());
-            var attribute = memInfo[0].GetCustomAttribute<StringValueAttribute>();
+            var memInfo = type.GetRuntimeField(enumVal.ToString());
+            var attribute = memInfo.GetCustomAttribute<StringValueAttribute>();
             return attribute.Value;
         }
     }

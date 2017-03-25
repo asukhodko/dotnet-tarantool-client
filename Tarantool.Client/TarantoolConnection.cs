@@ -192,7 +192,7 @@ namespace Tarantool.Client
             var greetingMessageBytes = await _stream.ReadExactlyBytesAsync(128);
             var greetingMessage = new GreetingServerMessage(greetingMessageBytes);
             if (!greetingMessage.ServerVersion.StartsWith("Tarantool"))
-                throw new ProtocolViolationException("This is not a Tarantool server.");
+                throw new TarantoolProtocolViolationException("This is not a Tarantool server.");
             return greetingMessage;
         }
 

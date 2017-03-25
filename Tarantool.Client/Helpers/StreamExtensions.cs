@@ -34,7 +34,7 @@ namespace Tarantool.Client.Helpers
         }
 
         /// <exception cref="EndOfStreamException">Unexpected end of stream.</exception>
-        /// <exception cref="ProtocolViolationException">Unexpected read bytes count.</exception>
+        /// <exception cref="TarantoolProtocolViolationException">Unexpected read bytes count.</exception>
         /// <exception cref="UnpackException">
         ///     source is not valid MessagePack stream.
         /// </exception>
@@ -46,7 +46,7 @@ namespace Tarantool.Client.Helpers
             var packedMessageLength = await stream.ReadExactlyBytesAsync(5);
             var unpackedMessageLength = Unpacking.UnpackUInt32(packedMessageLength);
             if (unpackedMessageLength.ReadCount != 5)
-                throw new ProtocolViolationException("Unexpected read bytes count.");
+                throw new TarantoolProtocolViolationException("Unexpected read bytes count.");
             var messageLength = unpackedMessageLength.Value;
             var messageBytes = await stream.ReadExactlyBytesAsync((int)messageLength);
             var serverMessage = new ServerMessage(messageBytes);
