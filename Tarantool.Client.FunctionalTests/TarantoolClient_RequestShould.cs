@@ -10,6 +10,44 @@ namespace Tarantool.Client
     public class TarantoolClient_RequestShould
     {
         [Fact]
+        public async Task CallSomeFunction()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+
+            var result = await tarantoolClient.RequestAsync(new CallRequest
+            {
+                FunctionName = "some_function"
+            });
+
+            Assert.True(result.Count == 1);
+            Assert.Equal("ok", result[0].AsString());
+        }
+
+        [Fact]
+        public async Task Delete()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            await tarantoolClient.RequestAsync(new InsertRequest
+            {
+                SpaceId = testSpaceId,
+                Tuple = new List<object> { 88, "Some name", 1800 }
+            });
+
+            var result = await tarantoolClient.RequestAsync(new DeletetRequest
+            {
+                SpaceId = testSpaceId,
+                Key = new List<object> { 88 }
+            });
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal(new[] { "88", "Some name", "1800" },
+                result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
+        }
+
+        [Fact]
         public async Task EvaluateScalars()
         {
             var tarantoolClient =
@@ -36,6 +74,75 @@ namespace Tarantool.Client
             });
 
             Assert.Equal(new[] { 912345, 923456, 934567 }, result.Select(x => x.AsInt32()));
+        }
+
+        [Fact]
+        public async Task Insert()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            await tarantoolClient.RequestAsync(new DeletetRequest
+            {
+                SpaceId = testSpaceId,
+                Key = new List<object> { 99 }
+            });
+
+            try
+            {
+                var result = await tarantoolClient.RequestAsync(new InsertRequest
+                {
+                    SpaceId = testSpaceId,
+                    Tuple = new List<object> { 99, "Some name", 1900 }
+                });
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal(new[] { "99", "Some name", "1900" },
+                    result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
+            }
+            finally
+            {
+                await tarantoolClient.RequestAsync(new DeletetRequest
+                {
+                    SpaceId = testSpaceId,
+                    Key = new List<object> { 99 }
+                });
+            }
+        }
+
+        [Fact]
+        public async Task Replace()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+
+            try
+            {
+                await tarantoolClient.RequestAsync(new InsertRequest
+                {
+                    SpaceId = testSpaceId,
+                    Tuple = new List<object> { 77, "Some name", 1700 }
+                });
+
+                var result = await tarantoolClient.RequestAsync(new ReplaceRequest
+                {
+                    SpaceId = testSpaceId,
+                    Tuple = new List<object> { 77, "Some new name", 1777 }
+                });
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal(new[] { "77", "Some new name", "1777" },
+                    result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
+            }
+            finally
+            {
+                await tarantoolClient.RequestAsync(new DeletetRequest
+                {
+                    SpaceId = testSpaceId,
+                    Key = new List<object> { 77 }
+                });
+            }
         }
 
         [Fact]
@@ -87,119 +194,12 @@ namespace Tarantool.Client
             var result = await tarantoolClient.RequestAsync(new SelectRequest
             {
                 SpaceId = testSpaceId,
-                Key = new List<dynamic> { 3 }
+                Key = new object[] { 3 }
             });
 
             Assert.Equal(1, result.Count);
             Assert.Equal(new[] { "3", "Ace of Base", "1993" },
                 result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
-        }
-
-        [Fact]
-        public async Task Insert()
-        {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
-            await tarantoolClient.RequestAsync(new DeletetRequest
-            {
-                SpaceId = testSpaceId,
-                Key = new List<object> { 99 }
-            });
-
-            try
-            {
-                var result = await tarantoolClient.RequestAsync(new InsertRequest
-                {
-                    SpaceId = testSpaceId,
-                    Tuple = new List<object> { 99, "Some name", 1900 }
-                });
-
-                Assert.Equal(1, result.Count);
-                Assert.Equal(new[] { "99", "Some name", "1900" },
-                    result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
-            }
-            finally
-            {
-                await tarantoolClient.RequestAsync(new DeletetRequest
-                {
-                    SpaceId = testSpaceId,
-                    Key = new List<object> { 99 }
-                });
-            }
-        }
-
-        [Fact]
-        public async Task Delete()
-        {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
-            await tarantoolClient.RequestAsync(new InsertRequest
-            {
-                SpaceId = testSpaceId,
-                Tuple = new List<object> { 88, "Some name", 1800 }
-            });
-
-            var result = await tarantoolClient.RequestAsync(new DeletetRequest
-            {
-                SpaceId = testSpaceId,
-                Key = new List<object> { 88 }
-            });
-
-            Assert.Equal(1, result.Count);
-            Assert.Equal(new[] { "88", "Some name", "1800" },
-                result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
-        }
-
-        [Fact]
-        public async Task Replace()
-        {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
-
-            try
-            {
-                await tarantoolClient.RequestAsync(new InsertRequest
-                {
-                    SpaceId = testSpaceId,
-                    Tuple = new List<object> { 77, "Some name", 1700 }
-                });
-
-                var result = await tarantoolClient.RequestAsync(new ReplaceRequest
-                {
-                    SpaceId = testSpaceId,
-                    Tuple = new List<object> { 77, "Some new name", 1777 }
-                });
-
-                Assert.Equal(1, result.Count);
-                Assert.Equal(new[] { "77", "Some new name", "1777" },
-                    result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
-            }
-            finally
-            {
-                await tarantoolClient.RequestAsync(new DeletetRequest
-                {
-                    SpaceId = testSpaceId,
-                    Key = new List<object> { 77 }
-                });
-            }
-        }
-
-        [Fact]
-        public async Task CallSomeFunction()
-        {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-
-            var result = await tarantoolClient.RequestAsync(new CallRequest
-            {
-                FunctionName = "some_function"
-            });
-
-            Assert.True(result.Count == 1);
-            Assert.Equal("ok", result[0].AsString());
         }
 
         [Fact]
@@ -220,15 +220,15 @@ namespace Tarantool.Client
                 var result = await tarantoolClient.RequestAsync(new UpdateRequest
                 {
                     SpaceId = testSpaceId,
-                    Key = new List<object>{66},
-                    UpdateUperations = new []
+                    Key = new List<object> { 66 },
+                    UpdateUperations = new[]
                     {
                         new UpdateOperation<int>
                         {
                             Operation = UpdateOperationCode.Assign,
                             FieldNo = 2,
                             Argument = 1666
-                        } 
+                        }
                     }
                 });
 
@@ -258,15 +258,15 @@ namespace Tarantool.Client
                 await tarantoolClient.RequestAsync(new UpsertRequest
                 {
                     SpaceId = testSpaceId,
-                    Tuple = new List<object>{ 55, "Some name", 1550 },
-                    UpdateUperations = new []
+                    Tuple = new List<object> { 55, "Some name", 1550 },
+                    UpdateUperations = new[]
                     {
                         new UpdateOperation<int>
                         {
                             Operation = UpdateOperationCode.Assign,
                             FieldNo = 2,
                             Argument = 1555
-                        } 
+                        }
                     }
                 });
 
@@ -337,6 +337,5 @@ namespace Tarantool.Client
                 });
             }
         }
-
     }
 }
