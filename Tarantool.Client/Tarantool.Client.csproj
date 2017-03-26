@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
     <Authors>Aleksandr Sukhodko</Authors>
-    <Description>.NET client (connector) for Tarantool database</Description>
+    <Description>.NET client (connector/driver) for Tarantool database</Description>
     <Copyright>Copyright 2017</Copyright>
     <PackageProjectUrl>https://github.com/asukhodko/dotnet-tarantool-client</PackageProjectUrl>
     <PackageTags>tarantool</PackageTags>

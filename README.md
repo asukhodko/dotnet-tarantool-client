@@ -1,16 +1,22 @@
 Tarantool .NET client
 =====================
 
-.NET client (connector/driver) for Tarantool database.
+.NET client (connector/driver) for Tarantool database (https://tarantool.org/).
+Works both with .NET Core and .NET Framework (>= 4.6.1).
 
-This version works both with .NET Core >= 1.0 and .NET Framework >= 4.6.1.
+[Get dotnet TarantoolClient package on NuGet](https://www.nuget.org/packages/TarantoolClient)
+
+```bash
+PM> Install-Package TarantoolClient
+```
+[![Latest stable](https://img.shields.io/nuget/v/TarantoolClient.svg)](https://www.nuget.org/packages/TarantoolClient)
 
 High-level operations and ORM
 -----------------------------
 
 At this time package contains only low-level application interface (API)
 for operations with Tarantool database.
-ORM (Object-Relational Mapping) for Tarantool is been under development.
+Object-Relational Mapping (ORM) for Tarantool is under development.
 
 Getting Started with low-level operations
 ---------------
