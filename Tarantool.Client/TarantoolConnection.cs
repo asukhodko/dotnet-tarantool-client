@@ -93,7 +93,7 @@ namespace Tarantool.Client
             {
                 var response = t.Result;
                 if (response.IsError)
-                    throw new TarantoolException(response.ErrorMessage);
+                    throw new TarantoolResponseException(response.ErrorMessage, response.Code);
                 var resultList = response.Body.AsList();
                 return resultList;
             });

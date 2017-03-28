@@ -8,9 +8,13 @@ namespace Tarantool.Client
         /*
           Tarantool setup:
             box.schema.user.create('mytestuser', { password = 'mytestpass' })
-            box.schema.create_space('test', {user = 'mytestuser'})
+            box.schema.user.grant('mytestuser', 'read,write', 'space', '_schema')
+            box.schema.user.grant('mytestuser', 'read,write', 'space', '_space')
             box.schema.user.grant('mytestuser', 'read,write', 'space', '_index')
+            box.schema.user.grant('mytestuser', 'read', 'space', '_priv')
             box.schema.user.grant('mytestuser', 'execute', 'universe')
+
+            box.schema.create_space('test', {user = 'mytestuser'})
             box.space.test:create_index('primary', {type = 'hash', parts = {1, 'unsigned'}})
 
             box.schema.func.create('some_function')
