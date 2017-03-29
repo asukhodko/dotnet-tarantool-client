@@ -6,21 +6,14 @@ Works both with .NET Core and .NET Framework (>= 4.6.1).
 
 [Get dotnet TarantoolClient package on NuGet](https://www.nuget.org/packages/TarantoolClient)
 
-```bash
+```powershell
 PM> Install-Package TarantoolClient
 ```
 [![Latest stable](https://img.shields.io/nuget/v/TarantoolClient.svg)](https://www.nuget.org/packages/TarantoolClient)
 
-High-level operations and ORM
------------------------------
-
-At this time package contains only low-level application interface (API)
-for operations with Tarantool database.
-Object-Relational Mapping (ORM) for Tarantool is under development.
-
-Getting Started with low-level operations
+Basic tarantool operations
 ---------------
-Next examples need this usings:
+Next examples assume to these usings:
 ```C#
 using Tarantool.Client;
 using Tarantool.Client.Models;
@@ -31,7 +24,7 @@ Create TarantoolClient instance:
 var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 ```
 
-### Selecting from space by id
+### Selecting from space by key
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 var rows = await tarantoolClient.RequestAsync(new SelectRequest
@@ -131,7 +124,7 @@ await tarantoolClient.RequestAsync(new UpsertRequest
 });
 ```
 
-### Call database functions
+### Call database LUA functions
 ```C#
 var result = await tarantoolClient.RequestAsync(new CallRequest
 {
@@ -169,3 +162,11 @@ await tarantoolClient.CreateSpaceAsync("new_space_name");
 ```C#
 await tarantoolClient.DropSpaceAsync("new_space_name");
 ```
+
+High-level operations and ORM
+-----------------------------
+
+At this time package contains only low-level application interface (API)
+for operations with Tarantool database.
+Object-Relational Mapping (ORM) for Tarantool is under development.
+
