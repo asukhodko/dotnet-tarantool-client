@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MsgPack;
+using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 
 namespace Tarantool.Client.Extensions
@@ -28,18 +31,25 @@ namespace Tarantool.Client.Extensions
             await tarantoolClient.EvalAsync($"box.space.{spaceName}:drop()");
         }
 
-        public static async Task CreatePrimaryIndexAsync(this TarantoolClient tarantoolClient,
+        /// <exception cref="ArgumentException">parts is null or empty.</exception>
+        public static async Task CreateIndexAsync(this TarantoolClient tarantoolClient,
             string spaceName,
-            string indexType, // TODO Enum
-            string keyType) // TODO Enum
+            string indexName,
+            IndexType indexType,
+            params IndexPart[] parts)
         {
             try
             {
+                if (parts == null || !parts.Any())
+                    throw new ArgumentException(nameof(parts));
+                var partsString = string.Join(",", parts.Select(x => $"{x.FieldNumber + 1}, '{x.Type.ToString()}'"));
                 await tarantoolClient.EvalAsync(
-                    $"box.space.{spaceName}:create_index('primary', {{type = '{indexType}',parts = {{1, '{keyType}'}}}})");
+                    $"box.space.{spaceName}:create_index('{indexName}', {{type = '{indexType}', parts = {{{partsString}}}}})");
             }
             catch (TarantoolResponseException ex)
             {
+                if (ex.Message.StartsWith("Index") && ex.Message.EndsWith("already exists"))
+                    throw new IndexAlreadyExistsException(ex.Message, ex);
                 throw;
             }
         }

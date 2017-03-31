@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Tarantool.Client.Extensions;
+using Tarantool.Client.Models;
 using Xunit;
 
 namespace Tarantool.Client
@@ -14,36 +15,43 @@ namespace Tarantool.Client
 
             try
             {
-                await tarantoolClient.CreateSpaceAsync("test2");
+                await tarantoolClient.CreateSpaceAsync("testforindex1");
 
-                var result = await tarantoolClient.FindSpaceByNameAsync("test2");
+                await tarantoolClient.CreateIndexAsync("testforindex1", "primary", IndexType.Hash, new IndexPart(0, IndexedFieldType.Unsigned));
+
+                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex1"))[0].AsUInt32();
+                var result = await tarantoolClient.FindIndexByNameAsync(spaceId, "primary");
                 Assert.NotNull(result);
-                Assert.True(result.Count >= 2);
-                Assert.Equal("test2", result[2].AsString());
+                Assert.True(result.Count >= 3);
+                Assert.Equal(spaceId, result[0].AsUInt32());
+                Assert.Equal("primary", result[2].AsString());
+                Assert.Equal("hash", result[3].AsString().ToLower());
             }
             finally
             {
-                await tarantoolClient.DropSpaceAsync("test2");
+                await tarantoolClient.DropSpaceAsync("testforindex1");
             }
         }
 
         [Fact]
-        public async Task HandleSpaceExists()
+        public async Task HandleIndexExists()
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {
-                await Assert.ThrowsAsync<SpaceAlreadyExistsException>(async () =>
+                await Assert.ThrowsAsync<IndexAlreadyExistsException>(async () =>
                 {
-                    await tarantoolClient.CreateSpaceAsync("test3");
-                    await tarantoolClient.CreateSpaceAsync("test3");
+                    await tarantoolClient.CreateSpaceAsync("testforindex2");
+                    await tarantoolClient.CreateIndexAsync("testforindex2", "primary", IndexType.Hash, new IndexPart(0, IndexedFieldType.Unsigned));
+
+                    await tarantoolClient.CreateIndexAsync("testforindex2", "primary", IndexType.Hash, new IndexPart(0, IndexedFieldType.Unsigned));
                 });
             }
             finally
             {
-                await tarantoolClient.DropSpaceAsync("test3");
+                await tarantoolClient.DropSpaceAsync("testforindex2");
             }
 
         }

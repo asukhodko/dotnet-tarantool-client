@@ -38,6 +38,7 @@ namespace Tarantool.Client
                 await Assert.ThrowsAsync<SpaceAlreadyExistsException>(async () =>
                 {
                     await tarantoolClient.CreateSpaceAsync("test3");
+
                     await tarantoolClient.CreateSpaceAsync("test3");
                 });
             }
