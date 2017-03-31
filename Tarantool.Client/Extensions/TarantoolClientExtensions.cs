@@ -12,7 +12,7 @@ namespace Tarantool.Client.Extensions
     {
         /// <exception cref="SpaceAlreadyExistsException"></exception>
         /// <exception cref="TarantoolResponseException"></exception>
-        public static async Task CreateSpaceAsync(this TarantoolClient tarantoolClient, string spaceName)
+        public static async Task CreateSpaceAsync(this ITarantoolClient tarantoolClient, string spaceName)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace Tarantool.Client.Extensions
             }
         }
 
-        public static async Task DropSpaceAsync(this TarantoolClient tarantoolClient, string spaceName)
+        public static async Task DropSpaceAsync(this ITarantoolClient tarantoolClient, string spaceName)
         {
             await tarantoolClient.EvalAsync($"box.space.{spaceName}:drop()");
         }
@@ -34,7 +34,7 @@ namespace Tarantool.Client.Extensions
         /// <exception cref="ArgumentException">parts is null or empty.</exception>
         /// <exception cref="IndexAlreadyExistsException"></exception>
         /// <exception cref="TarantoolResponseException"></exception>
-        public static async Task CreateIndexAsync(this TarantoolClient tarantoolClient,
+        public static async Task CreateIndexAsync(this ITarantoolClient tarantoolClient,
             string spaceName,
             string indexName,
             IndexType indexType,
@@ -56,12 +56,12 @@ namespace Tarantool.Client.Extensions
             }
         }
 
-        public static async Task DropIndexAsync(this TarantoolClient tarantoolClient, string spaceName, string indexName)
+        public static async Task DropIndexAsync(this ITarantoolClient tarantoolClient, string spaceName, string indexName)
         {
             await tarantoolClient.EvalAsync($"box.space.{spaceName}.index.{indexName}:drop()");
         }
 
-        public static Task<IList<MessagePackObject>> EvalAsync(this TarantoolClient tarantoolClient, string expression,
+        public static Task<IList<MessagePackObject>> EvalAsync(this ITarantoolClient tarantoolClient, string expression,
             params object[] args)
         {
             return tarantoolClient.RequestAsync(new EvalRequest
