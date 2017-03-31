@@ -56,5 +56,28 @@ namespace Tarantool.Client
 
         }
 
+        [Fact]
+        public async Task DropIndex()
+        {
+            var tarantoolClient =
+                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+
+            try
+            {
+                await tarantoolClient.CreateSpaceAsync("testforindex3");
+                await tarantoolClient.CreateIndexAsync("testforindex3", "primary", IndexType.Hash, new IndexPart(0, IndexedFieldType.Unsigned));
+
+                await tarantoolClient.DropIndexAsync("testforindex3", "primary");
+
+                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex3"))[0].AsUInt32();
+                var result = await tarantoolClient.FindIndexByNameAsync(spaceId, "primary");
+                Assert.Null(result);
+            }
+            finally
+            {
+                await tarantoolClient.DropSpaceAsync("testforindex3");
+            }
+        }
+
     }
 }

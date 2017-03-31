@@ -32,6 +32,8 @@ namespace Tarantool.Client.Extensions
         }
 
         /// <exception cref="ArgumentException">parts is null or empty.</exception>
+        /// <exception cref="IndexAlreadyExistsException"></exception>
+        /// <exception cref="TarantoolResponseException"></exception>
         public static async Task CreateIndexAsync(this TarantoolClient tarantoolClient,
             string spaceName,
             string indexName,
@@ -52,6 +54,11 @@ namespace Tarantool.Client.Extensions
                     throw new IndexAlreadyExistsException(ex.Message, ex);
                 throw;
             }
+        }
+
+        public static async Task DropIndexAsync(this TarantoolClient tarantoolClient, string spaceName, string indexName)
+        {
+            await tarantoolClient.EvalAsync($"box.space.{spaceName}.index.{indexName}:drop()");
         }
 
         public static Task<IList<MessagePackObject>> EvalAsync(this TarantoolClient tarantoolClient, string expression,
