@@ -163,6 +163,19 @@ await tarantoolClient.CreateSpaceAsync("new_space_name");
 await tarantoolClient.DropSpaceAsync("new_space_name");
 ```
 
+### Create index
+```C#
+await tarantoolClient.CreateIndexAsync("some_space",
+    "index_name",
+    IndexType.Hash,
+    new IndexPart(0, IndexedFieldType.Unsigned));
+```
+
+### Drop space
+```C#
+await tarantoolClient.DropIndexAsync("some_space", "index_name");
+```
+
 High-level operations and ORM
 -----------------------------
 
