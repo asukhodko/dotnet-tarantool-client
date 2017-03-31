@@ -6,30 +6,26 @@ Works both with .NET Core and .NET Framework (>= 4.6.1).
 
 [Get dotnet TarantoolClient package on NuGet](https://www.nuget.org/packages/TarantoolClient)
 
-```bash
+```powershell
 PM> Install-Package TarantoolClient
 ```
 [![Latest stable](https://img.shields.io/nuget/v/TarantoolClient.svg)](https://www.nuget.org/packages/TarantoolClient)
 
-High-level operations and ORM
------------------------------
-
-At this time package contains only low-level application interface (API)
-for operations with Tarantool database.
-Object-Relational Mapping (ORM) for Tarantool is under development.
-
-Getting Started with low-level operations
+Basic tarantool operations
 ---------------
-Next examples need this usings:
+Next examples assume to these usings:
 ```C#
 using Tarantool.Client;
 using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 ```
-
-### Selecting from space by id
+Create TarantoolClient instance:
 ```C#
 var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
+```
+
+### Selecting from space by key
+```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 var rows = await tarantoolClient.RequestAsync(new SelectRequest
 {
@@ -40,7 +36,6 @@ var rows = await tarantoolClient.RequestAsync(new SelectRequest
 
 ### Selecting all rows from space
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 var rows = await tarantoolClient.RequestAsync(new SelectRequest
 {
@@ -51,7 +46,6 @@ var rows = await tarantoolClient.RequestAsync(new SelectRequest
 
 ### Selecting by secondary index
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 var indexId = (await tarantoolClient.FindIndexByNameAsync(spaceId, "indexname"))[0].AsUInt32();
 var rows = await tarantoolClient.RequestAsync(new SelectRequest
@@ -64,7 +58,6 @@ var rows = await tarantoolClient.RequestAsync(new SelectRequest
 
 ### Inserting data
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 await tarantoolClient.RequestAsync(new InsertRequest
 {
@@ -75,7 +68,6 @@ await tarantoolClient.RequestAsync(new InsertRequest
 
 ### Updating data
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 await tarantoolClient.RequestAsync(new UpdateRequest
 {
@@ -86,7 +78,7 @@ await tarantoolClient.RequestAsync(new UpdateRequest
         new UpdateOperation<int>
         {
             Operation = UpdateOperationCode.Assign,
-            FieldNo = 2, // updating second field in tuple
+            FieldNo = 2, // updating field with index=2 in tuple
             Argument = 1666 // new value
         } 
     }
@@ -95,7 +87,6 @@ await tarantoolClient.RequestAsync(new UpdateRequest
 
 ### Deleting data
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 await tarantoolClient.RequestAsync(new DeletetRequest
 {
@@ -106,7 +97,6 @@ await tarantoolClient.RequestAsync(new DeletetRequest
 
 ### Replace operation
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 await tarantoolClient.RequestAsync(new ReplaceRequest
 {
@@ -117,7 +107,6 @@ await tarantoolClient.RequestAsync(new ReplaceRequest
 
 ### Upsert operation
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 await tarantoolClient.RequestAsync(new UpsertRequest
 {
@@ -135,9 +124,8 @@ await tarantoolClient.RequestAsync(new UpsertRequest
 });
 ```
 
-### Call database functions
+### Call database LUA functions
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var result = await tarantoolClient.RequestAsync(new CallRequest
 {
     FunctionName = "some_function", // execute this database stored LUA funtion
@@ -147,13 +135,51 @@ var result = await tarantoolClient.RequestAsync(new CallRequest
 
 ### Eval operation
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
 var result = await tarantoolClient.RequestAsync(new EvalRequest
 {
     Expression = "return ...", // any tarantool expression
     Args = new object[] { 912345, 923456, 934567 } // arguments if needed for expression
 });
 ```
-
+Or with Tarantool.Client.Extensions:
+```C#
+var result = await tarantoolClient.EvalAsync("return ...", 912345, 923456, 934567);
+```
 ### Other examples
 You can find more examples in unit tests available with TarantoolClient source code.
+
+DDL-operations
+--------------
+```C#
+using Tarantool.Client.Extensions;
+```
+### Create space
+```C#
+await tarantoolClient.CreateSpaceAsync("new_space_name");
+```
+
+### Drop space
+```C#
+await tarantoolClient.DropSpaceAsync("new_space_name");
+```
+
+### Create index
+```C#
+await tarantoolClient.CreateIndexAsync("some_space",
+    "index_name",
+    IndexType.Hash,
+    new IndexPart(0, IndexedFieldType.Unsigned));
+```
+
+### Drop space
+```C#
+await tarantoolClient.DropIndexAsync("some_space", "index_name");
+```
+
+High-level operations and ORM
+-----------------------------
+
+At this time package contains only low-level application interface (API)
+for operations with Tarantool database.
+Object-Relational Mapping (ORM) for Tarantool is under development.
+
