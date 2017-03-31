@@ -171,7 +171,7 @@ await tarantoolClient.CreateIndexAsync("some_space",
     new IndexPart(0, IndexedFieldType.Unsigned));
 ```
 
-### Drop space
+### Drop index
 ```C#
 await tarantoolClient.DropIndexAsync("some_space", "index_name");
 ```
