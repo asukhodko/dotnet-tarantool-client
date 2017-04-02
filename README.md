@@ -27,7 +27,7 @@ var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:
 ### Selecting from space by key
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
-var rows = await tarantoolClient.RequestAsync(new SelectRequest
+var rows = await tarantoolClient.SelectAsync(new SelectRequest
 {
     SpaceId = spaceId,
     Key = new object[] { 3 } // find row where Id = 3
@@ -37,7 +37,7 @@ var rows = await tarantoolClient.RequestAsync(new SelectRequest
 ### Selecting all rows from space
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
-var rows = await tarantoolClient.RequestAsync(new SelectRequest
+var rows = await tarantoolClient.SelectAsync(new SelectRequest
 {
     SpaceId = spaceId,
     Iterator = Iterator.All
@@ -48,7 +48,7 @@ var rows = await tarantoolClient.RequestAsync(new SelectRequest
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
 var indexId = (await tarantoolClient.FindIndexByNameAsync(spaceId, "indexname"))[0].AsUInt32();
-var rows = await tarantoolClient.RequestAsync(new SelectRequest
+var rows = await tarantoolClient.SelectAsync(new SelectRequest
 {
     SpaceId = spaceId,
     IndexId = indexId,
@@ -59,7 +59,7 @@ var rows = await tarantoolClient.RequestAsync(new SelectRequest
 ### Inserting data
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
-await tarantoolClient.RequestAsync(new InsertRequest
+await tarantoolClient.InsertAsync(new InsertRequest
 {
     SpaceId = spaceId,
     Tuple = new object[] { 99, "Some string", 1900 }
@@ -69,7 +69,7 @@ await tarantoolClient.RequestAsync(new InsertRequest
 ### Updating data
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
-await tarantoolClient.RequestAsync(new UpdateRequest
+await tarantoolClient.UpdateAsync(new UpdateRequest
 {
     SpaceId = spaceId,
     Key = new object[] { 66 }, // update row where Id = 66
@@ -88,7 +88,7 @@ await tarantoolClient.RequestAsync(new UpdateRequest
 ### Deleting data
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
-await tarantoolClient.RequestAsync(new DeletetRequest
+await tarantoolClient.DeleteAsync(new DeleteRequest
 {
     SpaceId = spaceId,
     Key = new object[] { 88 } // delete row where Id = 88
@@ -98,7 +98,7 @@ await tarantoolClient.RequestAsync(new DeletetRequest
 ### Replace operation
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
-await tarantoolClient.RequestAsync(new ReplaceRequest
+await tarantoolClient.ReplaceAsync(new ReplaceRequest
 {
     SpaceId = spaceId,
     Tuple = new object[] { 77, "Some new name", 1777 } // find row with Id = 77 and replace it
@@ -108,7 +108,7 @@ await tarantoolClient.RequestAsync(new ReplaceRequest
 ### Upsert operation
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
-await tarantoolClient.RequestAsync(new UpsertRequest
+await tarantoolClient.UpsertAsync(new UpsertRequest
 {
     SpaceId = spaceId,
     Tuple = new object[] { 55, "Some name", 1550 }, // find row with Id = 55 and insert if not exists
@@ -126,7 +126,7 @@ await tarantoolClient.RequestAsync(new UpsertRequest
 
 ### Call database LUA functions
 ```C#
-var result = await tarantoolClient.RequestAsync(new CallRequest
+var result = await tarantoolClient.CallAsync(new CallRequest
 {
     FunctionName = "some_function", // execute this database stored LUA funtion
     Args = new object[] {1, 2, 3} // pass these arguments to function
@@ -135,7 +135,7 @@ var result = await tarantoolClient.RequestAsync(new CallRequest
 
 ### Eval operation
 ```C#
-var result = await tarantoolClient.RequestAsync(new EvalRequest
+var result = await tarantoolClient.EvalAsync(new EvalRequest
 {
     Expression = "return ...", // any tarantool expression
     Args = new object[] { 912345, 923456, 934567 } // arguments if needed for expression

@@ -15,10 +15,10 @@ namespace Tarantool.Client
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
 
-            var result = await tarantoolClient.RequestAsync(new CallRequest
+            var result = (await tarantoolClient.CallAsync(new CallRequest
             {
                 FunctionName = "some_function"
-            });
+            })).AsList();
 
             Assert.True(result.Count == 1);
             Assert.Equal("ok", result[0].AsString());
@@ -36,7 +36,7 @@ namespace Tarantool.Client
                 Tuple = new List<object> { 88, "Some name", 1800 }
             });
 
-            var result = await tarantoolClient.RequestAsync(new DeletetRequest
+            var result = await tarantoolClient.DeleteAsync(new DeleteRequest
             {
                 SpaceId = testSpaceId,
                 Key = new List<object> { 88 }
@@ -53,10 +53,10 @@ namespace Tarantool.Client
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
 
-            var result = await tarantoolClient.RequestAsync(new EvalRequest
+            var result = (await tarantoolClient.EvalAsync(new EvalRequest
             {
                 Expression = "return 12345, 23456, 34567"
-            });
+            })).AsList();
 
             Assert.Equal(new[] { 12345, 23456, 34567 }, result.Select(x => x.AsInt32()));
         }
@@ -67,11 +67,11 @@ namespace Tarantool.Client
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
 
-            var result = await tarantoolClient.RequestAsync(new EvalRequest
+            var result = (await tarantoolClient.EvalAsync(new EvalRequest
             {
                 Expression = "return ...",
                 Args = new List<object> { 912345, 923456, 934567 }
-            });
+            })).AsList();
 
             Assert.Equal(new[] { 912345, 923456, 934567 }, result.Select(x => x.AsInt32()));
         }
@@ -82,7 +82,7 @@ namespace Tarantool.Client
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
-            await tarantoolClient.RequestAsync(new DeletetRequest
+            await tarantoolClient.RequestAsync(new DeleteRequest
             {
                 SpaceId = testSpaceId,
                 Key = new List<object> { 99 }
@@ -90,7 +90,7 @@ namespace Tarantool.Client
 
             try
             {
-                var result = await tarantoolClient.RequestAsync(new InsertRequest
+                var result = await tarantoolClient.InsertAsync(new InsertRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 99, "Some name", 1900 }
@@ -102,7 +102,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await tarantoolClient.RequestAsync(new DeletetRequest
+                await tarantoolClient.RequestAsync(new DeleteRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 99 }
@@ -125,7 +125,7 @@ namespace Tarantool.Client
                     Tuple = new List<object> { 77, "Some name", 1700 }
                 });
 
-                var result = await tarantoolClient.RequestAsync(new ReplaceRequest
+                var result = await tarantoolClient.ReplaceAsync(new ReplaceRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 77, "Some new name", 1777 }
@@ -137,7 +137,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await tarantoolClient.RequestAsync(new DeletetRequest
+                await tarantoolClient.RequestAsync(new DeleteRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 77 }
@@ -152,7 +152,7 @@ namespace Tarantool.Client
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
 
-            var result = await tarantoolClient.RequestAsync(new SelectRequest
+            var result = await tarantoolClient.SelectAsync(new SelectRequest
             {
                 SpaceId = testSpaceId,
                 Iterator = Iterator.All
@@ -174,7 +174,7 @@ namespace Tarantool.Client
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
 
-            var result = await tarantoolClient.RequestAsync(new SelectRequest
+            var result = await tarantoolClient.SelectAsync(new SelectRequest
             {
                 SpaceId = testSpaceId,
                 Key = new List<dynamic> { 1 }
@@ -191,7 +191,7 @@ namespace Tarantool.Client
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
 
-            var result = await tarantoolClient.RequestAsync(new SelectRequest
+            var result = await tarantoolClient.SelectAsync(new SelectRequest
             {
                 SpaceId = testSpaceId,
                 Key = new object[] { 3 }
@@ -217,7 +217,7 @@ namespace Tarantool.Client
                     Tuple = new List<object> { 66, "Some name", 1600 }
                 });
 
-                var result = await tarantoolClient.RequestAsync(new UpdateRequest
+                var result = await tarantoolClient.UpdateAsync(new UpdateRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 66 },
@@ -238,7 +238,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await tarantoolClient.RequestAsync(new DeletetRequest
+                await tarantoolClient.RequestAsync(new DeleteRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 66 }
@@ -255,7 +255,7 @@ namespace Tarantool.Client
 
             try
             {
-                await tarantoolClient.RequestAsync(new UpsertRequest
+                await tarantoolClient.UpsertAsync(new UpsertRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 55, "Some name", 1550 },
@@ -270,7 +270,7 @@ namespace Tarantool.Client
                     }
                 });
 
-                var result = await tarantoolClient.RequestAsync(new SelectRequest
+                var result = await tarantoolClient.SelectAsync(new SelectRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 55 }
@@ -281,7 +281,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await tarantoolClient.RequestAsync(new DeletetRequest
+                await tarantoolClient.RequestAsync(new DeleteRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 55 }
@@ -304,7 +304,7 @@ namespace Tarantool.Client
                     Tuple = new List<object> { 44, "Some name", 1400 }
                 });
 
-                await tarantoolClient.RequestAsync(new UpsertRequest
+                await tarantoolClient.UpsertAsync(new UpsertRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 44, "Some name", 1440 },
@@ -319,7 +319,7 @@ namespace Tarantool.Client
                     }
                 });
 
-                var result = await tarantoolClient.RequestAsync(new SelectRequest
+                var result = await tarantoolClient.SelectAsync(new SelectRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 44 }
@@ -330,7 +330,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await tarantoolClient.RequestAsync(new DeletetRequest
+                await tarantoolClient.RequestAsync(new DeleteRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 44 }

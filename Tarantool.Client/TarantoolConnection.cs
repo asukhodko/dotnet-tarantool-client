@@ -83,8 +83,8 @@ namespace Tarantool.Client
         /// <exception cref="System.IO.IOException">An I/O error occurs. </exception>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
-        /// <exception cref="TarantoolException"></exception>
-        public async Task<Task<IList<MessagePackObject>>> RequestAsync(ClientMessageBase clientMessage)
+        /// <exception cref="TarantoolResponseException"></exception>
+        public async Task<Task<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
         {
             CheckDisposed();
             await _stream.WriteAsync(clientMessage);
@@ -94,8 +94,7 @@ namespace Tarantool.Client
                 var response = t.Result;
                 if (response.IsError)
                     throw new TarantoolResponseException(response.ErrorMessage, response.Code);
-                var resultList = response.Body.AsList();
-                return resultList;
+                return response.Body;
             });
         }
 

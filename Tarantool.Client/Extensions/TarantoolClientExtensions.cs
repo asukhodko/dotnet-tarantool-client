@@ -26,6 +26,18 @@ namespace Tarantool.Client.Extensions
             }
         }
 
+        /// <exception cref="TarantoolResponseException"></exception>
+        public static async Task CreateSpaceIfNotExistsAsync(this ITarantoolClient tarantoolClient, string spaceName)
+        {
+            try
+            {
+                await tarantoolClient.CreateSpaceAsync(spaceName);
+            }
+            catch (SpaceAlreadyExistsException)
+            {
+            }
+        }
+
         public static async Task DropSpaceAsync(this ITarantoolClient tarantoolClient, string spaceName)
         {
             await tarantoolClient.EvalAsync($"box.space.{spaceName}:drop()");
@@ -56,12 +68,28 @@ namespace Tarantool.Client.Extensions
             }
         }
 
+        /// <exception cref="TarantoolResponseException"></exception>
+        public static async Task CreateIndexIfNotExistsAsync(this ITarantoolClient tarantoolClient,
+            string spaceName,
+            string indexName,
+            IndexType indexType,
+            params IndexPart[] parts)
+        {
+            try
+            {
+                await tarantoolClient.CreateIndexAsync(spaceName, indexName, indexType, parts);
+            }
+            catch (IndexAlreadyExistsException)
+            {
+            }
+        }
+
         public static async Task DropIndexAsync(this ITarantoolClient tarantoolClient, string spaceName, string indexName)
         {
             await tarantoolClient.EvalAsync($"box.space.{spaceName}.index.{indexName}:drop()");
         }
 
-        public static Task<IList<MessagePackObject>> EvalAsync(this ITarantoolClient tarantoolClient, string expression,
+        public static Task<MessagePackObject> EvalAsync(this ITarantoolClient tarantoolClient, string expression,
             params object[] args)
         {
             return tarantoolClient.RequestAsync(new EvalRequest

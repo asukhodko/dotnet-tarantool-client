@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Models.ClientMessages;
@@ -10,6 +9,6 @@ namespace Tarantool.Client
     {
         Task ConnectAsync();
 
-        Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage);
+        Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage);
     }
 }

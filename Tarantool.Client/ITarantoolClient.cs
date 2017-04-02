@@ -9,10 +9,28 @@ namespace Tarantool.Client
     {
         Task ConnectAsync();
 
-        Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage);
+        Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage);
+
+        Task<IList<MessagePackObject>> SelectAsync(SelectRequest selectRequest);
+
+        Task<IList<MessagePackObject>> InsertAsync(InsertRequest insertRequest);
+
+        Task<IList<MessagePackObject>> UpdateAsync(UpdateRequest updateRequest);
+
+        Task<IList<MessagePackObject>> DeleteAsync(DeleteRequest deleteRequest);
+
+        Task<IList<MessagePackObject>> ReplaceAsync(ReplaceRequest replaceRequest);
+
+        Task UpsertAsync(UpsertRequest upsertRequest);
+
+        Task<MessagePackObject> CallAsync(CallRequest callRequest);
+
+        Task<MessagePackObject> EvalAsync(EvalRequest evalRequest);
 
         Task<IList<MessagePackObject>> FindSpaceByNameAsync(string spaceName);
 
         Task<IList<MessagePackObject>> FindIndexByNameAsync(uint spaceId, string indexName);
+
+        //Task<T> RequestAsync<T>(ClientMessageBase clientMessage) where T : class, new();
     }
 }

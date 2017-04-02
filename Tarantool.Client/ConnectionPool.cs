@@ -26,9 +26,9 @@ namespace Tarantool.Client
             }
         }
 
-        public async Task<IList<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
+        public async Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage)
         {
-            Task<IList<MessagePackObject>> resultTask;
+            Task<MessagePackObject> resultTask;
             using (var connection = await AcquireConnectionAsync())
             {
                 resultTask = await connection.RequestAsync(clientMessage);

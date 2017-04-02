@@ -20,6 +20,6 @@ namespace Tarantool.Client
 
         bool IsConnected { get; }
 
-        Task<Task<IList<MessagePackObject>>> RequestAsync(ClientMessageBase clientMessage);
+        Task<Task<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage);
     }
 }
