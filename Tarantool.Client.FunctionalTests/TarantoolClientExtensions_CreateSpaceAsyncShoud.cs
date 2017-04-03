@@ -18,8 +18,7 @@ namespace Tarantool.Client
 
                 var result = await tarantoolClient.FindSpaceByNameAsync("test2");
                 Assert.NotNull(result);
-                Assert.True(result.Count >= 2);
-                Assert.Equal("test2", result[2].AsString());
+                Assert.Equal("test2", result.Name);
             }
             finally
             {

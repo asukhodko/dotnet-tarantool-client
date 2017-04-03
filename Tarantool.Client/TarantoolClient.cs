@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MsgPack;
+using MsgPack.Serialization;
 using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 using Tarantool.Client.Serialization;
@@ -46,6 +48,18 @@ namespace Tarantool.Client
             return (await RequestAsync(selectRequest)).AsList();
         }
 
+        public async Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest) where T : new()
+        {
+            var result = await SelectAsync(selectRequest);
+            var mapper = new MessagePackObjectMapper<T>();
+            return result.Select(x =>
+                {
+                    var t = new T();
+                    mapper.Map(x, t);
+                    return t;
+                }).ToList();
+        }
+
         public async Task<IList<MessagePackObject>> InsertAsync(InsertRequest insertRequest)
         {
             return (await RequestAsync(insertRequest)).AsList();
@@ -81,16 +95,16 @@ namespace Tarantool.Client
             return await RequestAsync(evalRequest);
         }
 
-        public async Task<IList<MessagePackObject>> FindSpaceByNameAsync(string spaceName)
+        public async Task<Space> FindSpaceByNameAsync(string spaceName)
         {
-            var selectResult = (await _connectionPool.RequestAsync(new SelectRequest
+            var selectResult = await SelectAsync<Space>(new SelectRequest
             {
                 SpaceId = VSpaceSpaceId,
                 IndexId = VSpaceNameIndexId,
                 Iterator = Iterator.Eq,
                 Key = new List<object> { spaceName }
-            })).AsList();
-            return selectResult.Count == 0 ? null : selectResult.First().AsList();
+            });
+            return selectResult.FirstOrDefault();
         }
 
         public async Task<IList<MessagePackObject>> FindIndexByNameAsync(uint spaceId, string indexName)
@@ -105,16 +119,5 @@ namespace Tarantool.Client
             return selectResult.Count == 0 ? null : selectResult.First().AsList();
         }
 
-        /*public async Task<T> RequestAsync<T>(ClientMessageBase clientMessage) where T : class, new()
-        {
-            var mapper = new MessagePackObjectMapper<T>();
-            var result = await _connectionPool.RequestAsync(clientMessage);
-            return result.Select(x =>
-            {
-                var t = new T();
-                mapper.Map(x, t);
-                return t;
-            }).ToList();
-        }*/
     }
 }

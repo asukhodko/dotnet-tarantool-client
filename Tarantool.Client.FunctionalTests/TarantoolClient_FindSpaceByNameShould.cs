@@ -14,8 +14,8 @@ namespace Tarantool.Client
             var result = await tarantoolClient.FindSpaceByNameAsync("_vspace");
 
             Assert.NotNull(result);
-            Assert.Equal(281, result[0].AsInt32());
-            Assert.Equal("_vspace", result[2].AsString());
+            Assert.Equal(281u, result.SpaceId);
+            Assert.Equal("_vspace", result.Name);
         }
     }
 }

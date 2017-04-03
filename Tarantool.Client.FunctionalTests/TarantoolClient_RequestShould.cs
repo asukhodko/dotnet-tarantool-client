@@ -29,7 +29,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
             await tarantoolClient.RequestAsync(new InsertRequest
             {
                 SpaceId = testSpaceId,
@@ -81,7 +81,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
             await tarantoolClient.RequestAsync(new DeleteRequest
             {
                 SpaceId = testSpaceId,
@@ -115,7 +115,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             try
             {
@@ -150,7 +150,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             var result = await tarantoolClient.SelectAsync(new SelectRequest
             {
@@ -172,7 +172,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             var result = await tarantoolClient.SelectAsync(new SelectRequest
             {
@@ -189,7 +189,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             var result = await tarantoolClient.SelectAsync(new SelectRequest
             {
@@ -207,7 +207,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             try
             {
@@ -251,7 +251,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             try
             {
@@ -294,7 +294,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient =
                 new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
-            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test"))[0].AsUInt32();
+            var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             try
             {

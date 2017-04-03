@@ -20,7 +20,7 @@ namespace Tarantool.Client
                 await tarantoolClient.CreateIndexAsync("testforindex1", "primary", IndexType.Hash,
                     new IndexPart(0, IndexedFieldType.Unsigned));
 
-                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex1"))[0].AsUInt32();
+                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex1")).SpaceId;
                 var result = await tarantoolClient.FindIndexByNameAsync(spaceId, "primary");
                 Assert.NotNull(result);
                 Assert.True(result.Count >= 3);
@@ -48,7 +48,7 @@ namespace Tarantool.Client
 
                 await tarantoolClient.DropIndexAsync("testforindex3", "primary");
 
-                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex3"))[0].AsUInt32();
+                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex3")).SpaceId;
                 var result = await tarantoolClient.FindIndexByNameAsync(spaceId, "primary");
                 Assert.Null(result);
             }

@@ -26,7 +26,7 @@ var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:
 
 ### Selecting from space by key
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 var rows = await tarantoolClient.SelectAsync(new SelectRequest
 {
     SpaceId = spaceId,
@@ -36,7 +36,7 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
 
 ### Selecting all rows from space
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 var rows = await tarantoolClient.SelectAsync(new SelectRequest
 {
     SpaceId = spaceId,
@@ -46,7 +46,7 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
 
 ### Selecting by secondary index
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 var indexId = (await tarantoolClient.FindIndexByNameAsync(spaceId, "indexname"))[0].AsUInt32();
 var rows = await tarantoolClient.SelectAsync(new SelectRequest
 {
@@ -58,7 +58,7 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
 
 ### Inserting data
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 await tarantoolClient.InsertAsync(new InsertRequest
 {
     SpaceId = spaceId,
@@ -68,7 +68,7 @@ await tarantoolClient.InsertAsync(new InsertRequest
 
 ### Updating data
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 await tarantoolClient.UpdateAsync(new UpdateRequest
 {
     SpaceId = spaceId,
@@ -87,7 +87,7 @@ await tarantoolClient.UpdateAsync(new UpdateRequest
 
 ### Deleting data
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 await tarantoolClient.DeleteAsync(new DeleteRequest
 {
     SpaceId = spaceId,
@@ -97,7 +97,7 @@ await tarantoolClient.DeleteAsync(new DeleteRequest
 
 ### Replace operation
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 await tarantoolClient.ReplaceAsync(new ReplaceRequest
 {
     SpaceId = spaceId,
@@ -107,7 +107,7 @@ await tarantoolClient.ReplaceAsync(new ReplaceRequest
 
 ### Upsert operation
 ```C#
-var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace"))[0].AsUInt32();
+var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
 await tarantoolClient.UpsertAsync(new UpsertRequest
 {
     SpaceId = spaceId,
