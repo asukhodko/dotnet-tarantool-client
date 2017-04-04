@@ -51,11 +51,9 @@ namespace Tarantool.Client
         public async Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest) where T : new()
         {
             var result = await SelectAsync(selectRequest);
-            var mapper = new MessagePackObjectMapper<T>();
             return result.Select(x =>
                 {
-                    var t = new T();
-                    mapper.Map(x, t);
+                    var t = MessagePackObjectMapper.Map<T>(x);
                     return t;
                 }).ToList();
         }

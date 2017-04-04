@@ -20,7 +20,7 @@ namespace Tarantool.Client.Models
         [MessagePackMember(2)]
         public string Name { get; set; }
 
-        [MessagePackMember(3)]
+        //[MessagePackMember(3)]
         public StorageEngine Engine { get; set; }
 
         [MessagePackMember(4)]
