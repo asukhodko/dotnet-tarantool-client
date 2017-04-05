@@ -8,7 +8,7 @@ namespace Tarantool.Client.Models
     {
         public Space()
         {
-           Format = new List<MessagePackObject>();
+           Format = new List<Field>();
         }
 
         [MessagePackMember(1)]
@@ -30,6 +30,6 @@ namespace Tarantool.Client.Models
         public MessagePackObject Flags { get; set; }
 
         [MessagePackMember(6)]
-        public IList<MessagePackObject> Format { get; set; }
+        public List<Field> Format { get; set; }
     }
 }

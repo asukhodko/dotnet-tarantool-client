@@ -44,7 +44,7 @@ namespace Tarantool.Client.Serialization
                 return source.AsInt16();
             if (targetType == typeof(ushort))
                 return source.AsUInt16();
-            if (targetType == typeof(IList<MessagePackObject>))
+            if (targetType == typeof(List<MessagePackObject>) || targetType == typeof(IList<MessagePackObject>))
                 return source.AsList();
             if (targetType == typeof(IEnumerable<MessagePackObject>))
                 return source.AsEnumerable();
@@ -54,35 +54,72 @@ namespace Tarantool.Client.Serialization
             if (targetType == typeof(MessagePackObject))
                 return source;
 
+            if (ti.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(List<>) ||
+                                     targetType.GetGenericTypeDefinition() == typeof(IList<>)))
+                return MapList(targetType, source.AsList());
+
             if (ti.IsClass && source.IsList)
                 return MapClass(targetType, source);
+
+            if (ti.IsClass && source.IsMap)
+                return MapDictionary(targetType, source.AsDictionary());
 
             if (ti.IsEnum)
                 return MapEnum(targetType, source);
 
-            throw new MessagePackMapperException($"Cannot find MsgPackObject converter for type {targetType.FullName}.");
+            throw new MessagePackMapperException(
+                $"Cannot find MsgPackObject converter for type {targetType.FullName}.");
+        }
+
+        private static object MapList(Type targetType, IList<MessagePackObject> source)
+        {
+            var entryType = targetType.GenericTypeArguments[0];
+            var addMethod = targetType.GetRuntimeMethod("Add", new[] { entryType });
+            var target = Activator.CreateInstance(targetType);
+            foreach (var o in source)
+            {
+                var value = Map(entryType, o);
+                addMethod.Invoke(target, new[] { value });
+            }
+            return target;
+        }
+
+        private static object MapDictionary(Type targetType, MessagePackObjectDictionary source)
+        {
+            var target = Activator.CreateInstance(targetType);
+            var props = targetType.GetRuntimeProperties().ToList();
+            foreach (var pair in source)
+            {
+                var property = props.FirstOrDefault(x => x.Name.ToLower() == pair.Key.AsString().ToLower());
+                if (property != null)
+                {
+                    var targetValue = Map(property.PropertyType, pair.Value);
+                    property.SetValue(target, targetValue);
+                }
+            }
+            return target;
         }
 
         private static object MapClass(Type targetType, MessagePackObject source)
         {
             var sourceFields = source.AsList();
-            object target = Activator.CreateInstance(targetType);
+            var target = Activator.CreateInstance(targetType);
             foreach (var property in targetType.GetRuntimeProperties())
             {
                 var attr = property.GetCustomAttribute<MessagePackMemberAttribute>();
                 if (attr != null)
-                {
                     try
                     {
-                        var val = sourceFields[attr.Id];
-                        property.SetValue(target, Map(property.PropertyType, val));
+                        var msgPackValue = sourceFields[attr.Id];
+                        var targetValue = Map(property.PropertyType, msgPackValue);
+                        property.SetValue(target, targetValue);
                     }
                     catch (Exception ex)
                     {
                         throw new MessagePackMapperException(
-                            $"Cannot map field [{property.Name}] from position [{attr.Id}]. See inner exception.", ex);
+                            $"Cannot map field [{property.Name}] from position [{attr.Id}]. See inner exception for details.",
+                            ex);
                     }
-                }
             }
             return target;
         }
