@@ -33,11 +33,27 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
     Key = new object[] { 3 } // find row where Id = 3
 });
 ```
+or with object mapping to custom type:
+```C#
+public class MyEntity {
+    [MessagePackMember(0)]
+    public int MyEntityId {get; set;}
+
+    [MessagePackMember(1)]
+    public string SomeField {get; set;}
+}
+
+var rows = await tarantoolClient.SelectAsync<MyEntity>(new SelectRequest
+{
+    SpaceId = spaceId,
+    Key = new object[] { 3 } // find row where Id = 3
+});
+```
 
 ### Selecting all rows from space
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
-var rows = await tarantoolClient.SelectAsync(new SelectRequest
+var rows = await tarantoolClient.SelectAsync<MyEntity>(new SelectRequest
 {
     SpaceId = spaceId,
     Iterator = Iterator.All
@@ -63,6 +79,31 @@ await tarantoolClient.InsertAsync(new InsertRequest
 {
     SpaceId = spaceId,
     Tuple = new object[] { 99, "Some string", 1900 }
+});
+```
+or with object mapping to custom type:
+```C#
+public class MyTestEntity
+{
+    [MessagePackMember(0)]
+    public int MyTestEntityId { get; set; }
+
+    [MessagePackMember(1)]
+    public string SomeStringField { get; set; }
+
+    [MessagePackMember(2)]
+    public int SomeIntField { get; set; }
+}
+
+await tarantoolClient.InsertAsync(new InsertRequest<MyTestEntity>
+{
+    SpaceId = testSpaceId,
+    Tuple = new MyTestEntity
+    {
+        MyTestEntityId = 99,
+        SomeStringField = "Some name",
+        SomeIntField = 1900
+    }
 });
 ```
 

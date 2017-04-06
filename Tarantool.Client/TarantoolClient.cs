@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MsgPack;
-using MsgPack.Serialization;
 using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 using Tarantool.Client.Serialization;
@@ -48,19 +45,21 @@ namespace Tarantool.Client
             return (await RequestAsync(selectRequest)).AsList();
         }
 
-        public async Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest) where T : new()
+        public async Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest)
         {
             var result = await SelectAsync(selectRequest);
-            return result.Select(x =>
-                {
-                    var t = MessagePackObjectMapper.Map<T>(x);
-                    return t;
-                }).ToList();
+            return MapCollection<T>(result).ToList();
         }
 
         public async Task<IList<MessagePackObject>> InsertAsync(InsertRequest insertRequest)
         {
             return (await RequestAsync(insertRequest)).AsList();
+        }
+
+        public async Task<IList<T>> InsertAsync<T>(InsertRequest<T> insertRequest)
+        {
+            var result = (await RequestAsync(insertRequest)).AsList();
+            return MapCollection<T>(result).ToList();
         }
 
         public async Task<IList<MessagePackObject>> UpdateAsync(UpdateRequest updateRequest)
@@ -117,5 +116,13 @@ namespace Tarantool.Client
             return selectResult.FirstOrDefault();
         }
 
+        private IEnumerable<T> MapCollection<T>(IEnumerable<MessagePackObject> source)
+        {
+            return source.Select(x =>
+            {
+                var t = MessagePackObjectMapper.Map<T>(x);
+                return t;
+            });
+        }
     }
 }

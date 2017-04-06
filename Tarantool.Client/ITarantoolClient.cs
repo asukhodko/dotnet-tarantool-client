@@ -14,9 +14,11 @@ namespace Tarantool.Client
 
         Task<IList<MessagePackObject>> SelectAsync(SelectRequest selectRequest);
 
-        Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest) where T : new();
+        Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest);
 
         Task<IList<MessagePackObject>> InsertAsync(InsertRequest insertRequest);
+
+        Task<IList<T>> InsertAsync<T>(InsertRequest<T> insertRequest);
 
         Task<IList<MessagePackObject>> UpdateAsync(UpdateRequest updateRequest);
 
@@ -33,6 +35,5 @@ namespace Tarantool.Client
         Task<Space> FindSpaceByNameAsync(string spaceName);
 
         Task<Index> FindIndexByNameAsync(uint spaceId, string indexName);
-
     }
 }

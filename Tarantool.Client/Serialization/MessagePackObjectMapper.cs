@@ -9,7 +9,7 @@ namespace Tarantool.Client.Serialization
 {
     public class MessagePackObjectMapper
     {
-        public static T Map<T>(MessagePackObject source) where T : new()
+        public static T Map<T>(MessagePackObject source)
         {
             return (T)Map(typeof(T), source);
         }
