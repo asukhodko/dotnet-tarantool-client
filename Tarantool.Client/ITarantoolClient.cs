@@ -32,7 +32,7 @@ namespace Tarantool.Client
 
         Task<Space> FindSpaceByNameAsync(string spaceName);
 
-        Task<IList<MessagePackObject>> FindIndexByNameAsync(uint spaceId, string indexName);
+        Task<Index> FindIndexByNameAsync(uint spaceId, string indexName);
 
     }
 }

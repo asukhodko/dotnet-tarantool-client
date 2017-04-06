@@ -44,7 +44,7 @@ namespace Tarantool.Client.Serialization
                 return source.AsInt16();
             if (targetType == typeof(ushort))
                 return source.AsUInt16();
-            if (targetType == typeof(List<MessagePackObject>) || targetType == typeof(IList<MessagePackObject>))
+            if (targetType == typeof(IList<MessagePackObject>))
                 return source.AsList();
             if (targetType == typeof(IEnumerable<MessagePackObject>))
                 return source.AsEnumerable();

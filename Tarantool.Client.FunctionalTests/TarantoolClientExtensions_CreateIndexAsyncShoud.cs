@@ -23,10 +23,10 @@ namespace Tarantool.Client
                 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex1")).SpaceId;
                 var result = await tarantoolClient.FindIndexByNameAsync(spaceId, "primary");
                 Assert.NotNull(result);
-                Assert.True(result.Count >= 3);
-                Assert.Equal(spaceId, result[0].AsUInt32());
-                Assert.Equal("primary", result[2].AsString());
-                Assert.Equal("hash", result[3].AsString().ToLower());
+                Assert.NotNull(result);
+                Assert.Equal(spaceId, result.SpaceId);
+                Assert.Equal("primary", result.Name);
+                Assert.Equal(IndexType.Hash, result.IndexType);
             }
             finally
             {

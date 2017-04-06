@@ -47,7 +47,7 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
 ### Selecting by secondary index
 ```C#
 var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testspace")).SpaceId;
-var indexId = (await tarantoolClient.FindIndexByNameAsync(spaceId, "indexname"))[0].AsUInt32();
+var indexId = (await tarantoolClient.FindIndexByNameAsync(spaceId, "indexname")).IndexId;
 var rows = await tarantoolClient.SelectAsync(new SelectRequest
 {
     SpaceId = spaceId,
@@ -78,7 +78,7 @@ await tarantoolClient.UpdateAsync(new UpdateRequest
         new UpdateOperation<int>
         {
             Operation = UpdateOperationCode.Assign,
-            FieldNo = 2, // updating field with index=2 in tuple
+            FieldNo = 2, // updating field with position=2 in tuple
             Argument = 1666 // new value
         } 
     }

@@ -105,16 +105,16 @@ namespace Tarantool.Client
             return selectResult.FirstOrDefault();
         }
 
-        public async Task<IList<MessagePackObject>> FindIndexByNameAsync(uint spaceId, string indexName)
+        public async Task<Index> FindIndexByNameAsync(uint spaceId, string indexName)
         {
-            var selectResult = (await _connectionPool.RequestAsync(new SelectRequest
+            var selectResult = await SelectAsync<Index>(new SelectRequest
             {
                 SpaceId = VIndexSpaceId,
                 IndexId = VIndexNameIndexId,
                 Iterator = Iterator.Eq,
                 Key = new List<object> { spaceId, indexName }
-            })).AsList();
-            return selectResult.Count == 0 ? null : selectResult.First().AsList();
+            });
+            return selectResult.FirstOrDefault();
         }
 
     }
