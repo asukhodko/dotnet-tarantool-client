@@ -4,7 +4,7 @@ namespace Tarantool.Client.Models.ClientMessages
 {
     public class InsertRequest : InsertRequest<IEnumerable<object>>
     {
-        public InsertRequest() : base()
+        public InsertRequest()
         {
             Tuple = new List<object>();
         }

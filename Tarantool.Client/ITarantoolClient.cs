@@ -26,6 +26,8 @@ namespace Tarantool.Client
 
         Task<IList<MessagePackObject>> ReplaceAsync(ReplaceRequest replaceRequest);
 
+        Task<IList<T>> ReplaceAsync<T>(ReplaceRequest<T> replaceRequest);
+
         Task UpsertAsync(UpsertRequest upsertRequest);
 
         Task<MessagePackObject> CallAsync(CallRequest callRequest);

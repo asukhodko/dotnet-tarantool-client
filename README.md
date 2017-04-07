@@ -35,15 +35,19 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
 ```
 or with object mapping to custom type:
 ```C#
-public class MyEntity {
+public class MyTestEntity
+{
     [MessagePackMember(0)]
-    public int MyEntityId {get; set;}
+    public int MyTestEntityId { get; set; }
 
     [MessagePackMember(1)]
-    public string SomeField {get; set;}
+    public string SomeStringField { get; set; }
+
+    [MessagePackMember(2)]
+    public int SomeIntField { get; set; }
 }
 
-var rows = await tarantoolClient.SelectAsync<MyEntity>(new SelectRequest
+var rows = await tarantoolClient.SelectAsync<MyTestEntity>(new SelectRequest
 {
     SpaceId = spaceId,
     Key = new object[] { 3 } // find row where Id = 3
@@ -83,18 +87,6 @@ await tarantoolClient.InsertAsync(new InsertRequest
 ```
 or with object mapping to custom type:
 ```C#
-public class MyTestEntity
-{
-    [MessagePackMember(0)]
-    public int MyTestEntityId { get; set; }
-
-    [MessagePackMember(1)]
-    public string SomeStringField { get; set; }
-
-    [MessagePackMember(2)]
-    public int SomeIntField { get; set; }
-}
-
 await tarantoolClient.InsertAsync(new InsertRequest<MyTestEntity>
 {
     SpaceId = testSpaceId,
@@ -143,6 +135,19 @@ await tarantoolClient.ReplaceAsync(new ReplaceRequest
 {
     SpaceId = spaceId,
     Tuple = new object[] { 77, "Some new name", 1777 } // find row with Id = 77 and replace it
+});
+```
+or with object mapping to custom type:
+```C#
+await tarantoolClient.ReplaceAsync(new ReplaceRequest<MyTestEntity>
+{
+    SpaceId = testSpaceId,
+    Tuple = new MyTestEntity
+    {
+        MyTestEntityId = 77,
+        SomeStringField = "Some new name",
+        SomeIntField = 1777
+    }
 });
 ```
 

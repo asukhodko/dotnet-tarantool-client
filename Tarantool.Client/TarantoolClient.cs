@@ -77,6 +77,12 @@ namespace Tarantool.Client
             return (await RequestAsync(replaceRequest)).AsList();
         }
 
+        public async Task<IList<T>> ReplaceAsync<T>(ReplaceRequest<T> replaceRequest)
+        {
+            var result = (await RequestAsync(replaceRequest)).AsList();
+            return MapCollection<T>(result).ToList();
+        }
+
         public async Task UpsertAsync(UpsertRequest upsertRequest)
         {
             await RequestAsync(upsertRequest);
