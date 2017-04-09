@@ -21,7 +21,7 @@ using Tarantool.Client.Models.ClientMessages;
 ```
 Create TarantoolClient instance:
 ```C#
-var tarantoolClient = new TarantoolClient("tarantool://user:pass@tarantool-host:3301");
+var tarantoolClient = TarantoolClient.Create("tarantool://user:pass@tarantool-host:3301");
 ```
 
 ### Selecting from space by key
@@ -35,6 +35,8 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
 ```
 or with object mapping to custom type:
 ```C#
+using MsgPack.Serialization;
+
 public class MyTestEntity
 {
     [MessagePackMember(0)]

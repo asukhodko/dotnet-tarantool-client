@@ -9,8 +9,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task CreateSpace()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {
@@ -29,8 +28,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task HandleSpaceExists()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {

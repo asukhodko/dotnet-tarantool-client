@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Models;
@@ -21,84 +22,87 @@ namespace Tarantool.Client
 
         private readonly IConnectionPool _connectionPool;
 
-        public TarantoolClient(string connectionString) : this(new ConnectionOptions(connectionString))
-        {
-        }
-
-        public TarantoolClient(ConnectionOptions connectionOptions)
+        private TarantoolClient(ConnectionOptions connectionOptions)
         {
             _connectionPool = ConnectionPool.GetPool(connectionOptions);
         }
 
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(CancellationToken cancellationToken)
         {
-            await _connectionPool.ConnectAsync();
+            await _connectionPool.ConnectAsync(cancellationToken);
         }
 
-        public async Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage)
+        public async Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage,
+            CancellationToken cancellationToken)
         {
-            return await _connectionPool.RequestAsync(clientMessage);
+            return await _connectionPool.RequestAsync(clientMessage, cancellationToken);
         }
 
-        public async Task<IList<MessagePackObject>> SelectAsync(SelectRequest selectRequest)
+        public async Task<IList<MessagePackObject>> SelectAsync(SelectRequest selectRequest,
+            CancellationToken cancellationToken)
         {
-            return (await RequestAsync(selectRequest)).AsList();
+            return (await RequestAsync(selectRequest, cancellationToken)).AsList();
         }
 
-        public async Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest)
+        public async Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest, CancellationToken cancellationToken)
         {
-            var result = await SelectAsync(selectRequest);
+            var result = await SelectAsync(selectRequest, cancellationToken);
             return MapCollection<T>(result).ToList();
         }
 
-        public async Task<IList<MessagePackObject>> InsertAsync(InsertRequest insertRequest)
+        public async Task<IList<MessagePackObject>> InsertAsync(InsertRequest insertRequest,
+            CancellationToken cancellationToken)
         {
-            return (await RequestAsync(insertRequest)).AsList();
+            return (await RequestAsync(insertRequest, cancellationToken)).AsList();
         }
 
-        public async Task<IList<T>> InsertAsync<T>(InsertRequest<T> insertRequest)
+        public async Task<IList<T>> InsertAsync<T>(InsertRequest<T> insertRequest, CancellationToken cancellationToken)
         {
-            var result = (await RequestAsync(insertRequest)).AsList();
+            var result = (await RequestAsync(insertRequest, cancellationToken)).AsList();
             return MapCollection<T>(result).ToList();
         }
 
-        public async Task<IList<MessagePackObject>> UpdateAsync(UpdateRequest updateRequest)
+        public async Task<IList<MessagePackObject>> UpdateAsync(UpdateRequest updateRequest,
+            CancellationToken cancellationToken)
         {
-            return (await RequestAsync(updateRequest)).AsList();
+            return (await RequestAsync(updateRequest, cancellationToken)).AsList();
         }
 
-        public async Task<IList<MessagePackObject>> DeleteAsync(DeleteRequest deleteRequest)
+        public async Task<IList<MessagePackObject>> DeleteAsync(DeleteRequest deleteRequest,
+            CancellationToken cancellationToken)
         {
-            return (await RequestAsync(deleteRequest)).AsList();
+            return (await RequestAsync(deleteRequest, cancellationToken)).AsList();
         }
 
-        public async Task<IList<MessagePackObject>> ReplaceAsync(ReplaceRequest replaceRequest)
+        public async Task<IList<MessagePackObject>> ReplaceAsync(ReplaceRequest replaceRequest,
+            CancellationToken cancellationToken)
         {
-            return (await RequestAsync(replaceRequest)).AsList();
+            return (await RequestAsync(replaceRequest, cancellationToken)).AsList();
         }
 
-        public async Task<IList<T>> ReplaceAsync<T>(ReplaceRequest<T> replaceRequest)
+        public async Task<IList<T>> ReplaceAsync<T>(ReplaceRequest<T> replaceRequest,
+            CancellationToken cancellationToken)
         {
-            var result = (await RequestAsync(replaceRequest)).AsList();
+            var result = (await RequestAsync(replaceRequest, cancellationToken)).AsList();
             return MapCollection<T>(result).ToList();
         }
 
-        public async Task UpsertAsync(UpsertRequest upsertRequest)
+        public async Task UpsertAsync(UpsertRequest upsertRequest, CancellationToken cancellationToken)
         {
-            await RequestAsync(upsertRequest);
+            await RequestAsync(upsertRequest, cancellationToken);
         }
 
-        public async Task<MessagePackObject> CallAsync(CallRequest callRequest)
+        public async Task<MessagePackObject> CallAsync(CallRequest callRequest, CancellationToken cancellationToken)
         {
-            return await RequestAsync(callRequest);
+            return await RequestAsync(callRequest, cancellationToken);
         }
 
-        public async Task<MessagePackObject> EvalAsync(EvalRequest evalRequest)
+        public async Task<MessagePackObject> EvalAsync(EvalRequest evalRequest, CancellationToken cancellationToken)
         {
-            return await RequestAsync(evalRequest);
+            return await RequestAsync(evalRequest, cancellationToken);
         }
 
-        public async Task<Space> FindSpaceByNameAsync(string spaceName)
+        public async Task<Space> FindSpaceByNameAsync(string spaceName, CancellationToken cancellationToken)
         {
             var selectResult = await SelectAsync<Space>(new SelectRequest
             {
@@ -106,11 +110,12 @@ namespace Tarantool.Client
                 IndexId = VSpaceNameIndexId,
                 Iterator = Iterator.Eq,
                 Key = new List<object> { spaceName }
-            });
+            }, cancellationToken);
             return selectResult.FirstOrDefault();
         }
 
-        public async Task<Index> FindIndexByNameAsync(uint spaceId, string indexName)
+        public async Task<Index> FindIndexByNameAsync(uint spaceId, string indexName,
+            CancellationToken cancellationToken)
         {
             var selectResult = await SelectAsync<Index>(new SelectRequest
             {
@@ -118,8 +123,28 @@ namespace Tarantool.Client
                 IndexId = VIndexNameIndexId,
                 Iterator = Iterator.Eq,
                 Key = new List<object> { spaceId, indexName }
-            });
+            }, cancellationToken);
             return selectResult.FirstOrDefault();
+        }
+
+        public ITarantoolSpace<T> GetSpace<T>(uint spaceId)
+        {
+            return new TarantoolSpace<T>(this, spaceId);
+        }
+
+        public ITarantoolSpace<T> GetSpace<T>(string spaceName)
+        {
+            return new TarantoolSpace<T>(this, spaceName);
+        }
+
+        public static ITarantoolClient Create(ConnectionOptions connectionOptions)
+        {
+            return new TarantoolClient(connectionOptions);
+        }
+
+        public static ITarantoolClient Create(string connectionString)
+        {
+            return new TarantoolClient(new ConnectionOptions(connectionString));
         }
 
         private IEnumerable<T> MapCollection<T>(IEnumerable<MessagePackObject> source)

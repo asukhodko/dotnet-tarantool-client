@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Models.ClientMessages;
@@ -13,12 +13,15 @@ namespace Tarantool.Client.Helpers
         private static ulong _nextRequestId = 1000;
 
         /// <exception cref="EndOfStreamException">Unexpected end of stream.</exception>
-        public static async Task ReadExactlyBytesAsync(this Stream stream, byte[] buffer, int offset, int count)
+        public static async Task ReadExactlyBytesAsync(this Stream stream, byte[] buffer, int offset, int count,
+            CancellationToken cancellationToken)
         {
             var totalReadCount = 0;
             while (totalReadCount < count)
             {
-                var readCount = await stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount);
+                cancellationToken.ThrowIfCancellationRequested();
+                var readCount = await stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount,
+                    cancellationToken);
                 if (readCount == 0)
                     throw new EndOfStreamException("Unexpected end of stream.");
                 totalReadCount += readCount;
@@ -26,10 +29,11 @@ namespace Tarantool.Client.Helpers
         }
 
         /// <exception cref="EndOfStreamException">Unexpected end of stream.</exception>
-        public static async Task<byte[]> ReadExactlyBytesAsync(this Stream stream, int count)
+        public static async Task<byte[]> ReadExactlyBytesAsync(this Stream stream, int count,
+            CancellationToken cancellationToken)
         {
             var buffer = new byte[count];
-            await stream.ReadExactlyBytesAsync(buffer, 0, count);
+            await stream.ReadExactlyBytesAsync(buffer, 0, count, cancellationToken);
             return buffer;
         }
 
@@ -41,14 +45,15 @@ namespace Tarantool.Client.Helpers
         /// <exception cref="MessageTypeException">
         ///     The unpacked result is not compatible to <see cref="T:System.UInt32" />.
         /// </exception>
-        public static async Task<ServerMessage> ReadServerMessageAsync(this Stream stream)
+        public static async Task<ServerMessage> ReadServerMessageAsync(this Stream stream,
+            CancellationToken cancellationToken)
         {
-            var packedMessageLength = await stream.ReadExactlyBytesAsync(5);
+            var packedMessageLength = await stream.ReadExactlyBytesAsync(5, cancellationToken);
             var unpackedMessageLength = Unpacking.UnpackUInt32(packedMessageLength);
             if (unpackedMessageLength.ReadCount != 5)
                 throw new TarantoolProtocolViolationException("Unexpected read bytes count.");
             var messageLength = unpackedMessageLength.Value;
-            var messageBytes = await stream.ReadExactlyBytesAsync((int)messageLength);
+            var messageBytes = await stream.ReadExactlyBytesAsync((int)messageLength, cancellationToken);
             var serverMessage = new ServerMessage(messageBytes);
             return serverMessage;
         }
@@ -57,7 +62,8 @@ namespace Tarantool.Client.Helpers
         /// <exception cref="System.NotSupportedException">The stream does not support writing, or the stream is already closed. </exception>
         /// <exception cref="System.InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
         /// <exception cref="IOException">An I/O error occurs. </exception>
-        public static async Task WriteAsync(this Stream stream, ClientMessageBase message)
+        public static async Task WriteAsync(this Stream stream, ClientMessageBase message,
+            CancellationToken cancellationToken)
         {
             message.RequestId = GetNextRequestId();
 
@@ -80,7 +86,7 @@ namespace Tarantool.Client.Helpers
             stream.WriteByte((byte)(messageLength >> 8));
             stream.WriteByte((byte)messageLength);
             // ReSharper disable once ExceptionNotDocumented
-            await stream.WriteAsync(messageBytes, 0, messageBytes.Length);
+            await stream.WriteAsync(messageBytes, 0, messageBytes.Length, cancellationToken);
         }
 
         private static ulong GetNextRequestId()

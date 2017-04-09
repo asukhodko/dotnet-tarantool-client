@@ -33,23 +33,21 @@ namespace Tarantool.Client
         [Fact]
         public async Task ConnectAsGuest()
         {
-            var tarantoolClient = new TarantoolClient("tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            var tarantoolClient = TarantoolClient.Create("tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
             await tarantoolClient.ConnectAsync();
         }
 
         [Fact]
         public async Task ConnectAsUser()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
             await tarantoolClient.ConnectAsync();
         }
 
         [Fact]
         public async Task NotConnectAsInvalidUser()
         {
-            var tarantoolClient =
-                new TarantoolClient(
+            var tarantoolClient = TarantoolClient.Create(
                     "invaliduser:invalidpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
 
             var ex = await Assert.ThrowsAsync<TarantoolException>(() => tarantoolClient.ConnectAsync());

@@ -11,8 +11,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task EvaluateScalars()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             var result = (await tarantoolClient.EvalAsync(new EvalRequest
             {
@@ -25,8 +24,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task EvaluateScalarsFromArguments()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             var result = (await tarantoolClient.EvalAsync(new EvalRequest
             {

@@ -12,8 +12,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectAll()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             var result = await tarantoolClient.SelectAsync(new SelectRequest
@@ -34,8 +33,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectBy1()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             var result = await tarantoolClient.SelectAsync(new SelectRequest
@@ -51,8 +49,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectBy3()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             var result = await tarantoolClient.SelectAsync(new SelectRequest

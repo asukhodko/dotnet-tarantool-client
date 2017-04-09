@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Helpers;
@@ -67,7 +67,7 @@ namespace Tarantool.Client
         /// <exception cref="InvalidOperationException">Connection should be used only once.</exception>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="ArgumentOutOfRangeException">nodeNumber</exception>
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(CancellationToken cancellationToken)
         {
             CheckDisposed();
             if (WhenDisconnected != null)
@@ -76,26 +76,28 @@ namespace Tarantool.Client
             var node = _connectionOptions.Nodes[_nodeNumber];
             await _socket.ConnectAsync(node.Host, node.Port);
             _stream = new NetworkStream(_socket, true);
-            WhenDisconnected = ReadServerMessagesAsync();
-            await HandshakeAsync();
+            WhenDisconnected = ReadServerMessagesAsync(cancellationToken);
+            await HandshakeAsync(cancellationToken);
         }
 
         /// <exception cref="System.IO.IOException">An I/O error occurs. </exception>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="InvalidOperationException">The stream is currently in use by a previous write operation. </exception>
         /// <exception cref="TarantoolResponseException"></exception>
-        public async Task<Task<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
+        public async Task<Task<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage,
+            CancellationToken cancellationToken)
         {
             CheckDisposed();
-            await _stream.WriteAsync(clientMessage);
+            await _stream.WriteAsync(clientMessage, cancellationToken);
 
-            return GetResponseAsync(clientMessage.RequestId).ContinueWith(t =>
-            {
-                var response = t.Result;
-                if (response.IsError)
-                    throw new TarantoolResponseException(response.ErrorMessage, response.Code);
-                return response.Body;
-            });
+            return WhenResponseAsync(clientMessage.RequestId)
+                .ContinueWith(t =>
+                {
+                    var response = t.Result;
+                    if (response.IsError)
+                        throw new TarantoolResponseException(response.ErrorMessage, response.Code);
+                    return response.Body;
+                }, cancellationToken);
         }
 
         /// <exception cref="ObjectDisposedException"></exception>
@@ -105,15 +107,16 @@ namespace Tarantool.Client
                 throw new ObjectDisposedException(nameof(TarantoolConnection));
         }
 
-        private async Task<Exception> ReadServerMessagesAsync()
+        private async Task<Exception> ReadServerMessagesAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var greetingMessage = await ReadGreetingMessageAsync();
+                var greetingMessage = await ReadGreetingMessageAsync(cancellationToken);
                 _greetingServerMessageTcs.SetResult(greetingMessage);
                 while (!_isDisposed && _socket.Connected)
                 {
-                    var message = await _stream.ReadServerMessageAsync();
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var message = await _stream.ReadServerMessageAsync(cancellationToken);
                     if (message.RequestId == 0)
                         throw new TarantoolException(
                             $"Unrecognized server message. Code={message.Code}, ErrorMessage={message.ErrorMessage}.");
@@ -148,7 +151,7 @@ namespace Tarantool.Client
             }
         }
 
-        private async Task HandshakeAsync()
+        private async Task HandshakeAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -163,7 +166,7 @@ namespace Tarantool.Client
                 {
                     Username = user,
                     Scramble = scrambleBytes
-                });
+                }, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -173,7 +176,7 @@ namespace Tarantool.Client
             }
         }
 
-        private async Task<ServerMessage> GetResponseAsync(ulong requestId)
+        private async Task<ServerMessage> WhenResponseAsync(ulong requestId)
         {
             var messageTcs = GetServerMessageTcs(requestId);
             await Task.WhenAny(messageTcs.Task, WhenDisconnected);
@@ -186,9 +189,9 @@ namespace Tarantool.Client
             return messageTcs.Task.Result;
         }
 
-        private async Task<GreetingServerMessage> ReadGreetingMessageAsync()
+        private async Task<GreetingServerMessage> ReadGreetingMessageAsync(CancellationToken cancellationToken)
         {
-            var greetingMessageBytes = await _stream.ReadExactlyBytesAsync(128);
+            var greetingMessageBytes = await _stream.ReadExactlyBytesAsync(128, cancellationToken);
             var greetingMessage = new GreetingServerMessage(greetingMessageBytes);
             if (!greetingMessage.ServerVersion.StartsWith("Tarantool"))
                 throw new TarantoolProtocolViolationException("This is not a Tarantool server.");

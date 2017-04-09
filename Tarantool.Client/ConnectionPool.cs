@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Models;
@@ -19,19 +20,19 @@ namespace Tarantool.Client
             _connectionOptions = connectionOptions;
         }
 
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(CancellationToken cancellationToken)
         {
-            using (await AcquireConnectionAsync())
+            using (await AcquireConnectionAsync(cancellationToken))
             {
             }
         }
 
-        public async Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage)
+        public async Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage, CancellationToken cancellationToken)
         {
             Task<MessagePackObject> resultTask;
-            using (var connection = await AcquireConnectionAsync())
+            using (var connection = await AcquireConnectionAsync(cancellationToken))
             {
-                resultTask = await connection.RequestAsync(clientMessage);
+                resultTask = await connection.RequestAsync(clientMessage, cancellationToken);
             }
             return await resultTask;
         }
@@ -49,7 +50,7 @@ namespace Tarantool.Client
                 }
         }
 
-        private async Task<IAcquiredConnection> AcquireConnectionAsync()
+        private async Task<IAcquiredConnection> AcquireConnectionAsync(CancellationToken cancellationToken)
         {
             IAcquiredConnection acquiredConnection;
             ITarantoolConnection newTarantoolConnection = null;
@@ -65,13 +66,13 @@ namespace Tarantool.Client
                 acquiredConnection = new AcquiredConnection(connection);
             }
             if (newTarantoolConnection != null)
-                await PrepareConnectionAsync(newTarantoolConnection);
+                await PrepareConnectionAsync(newTarantoolConnection, cancellationToken);
             return acquiredConnection;
         }
 
-        private async Task PrepareConnectionAsync(ITarantoolConnection connection)
+        private async Task PrepareConnectionAsync(ITarantoolConnection connection, CancellationToken cancellationToken)
         {
-            await connection.ConnectAsync();
+            await connection.ConnectAsync(cancellationToken);
             connection.WhenDisconnected.ConfigureAwait(false).GetAwaiter().OnCompleted(() =>
             {
                 lock (_connections)

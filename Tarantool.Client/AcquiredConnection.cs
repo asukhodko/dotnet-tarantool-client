@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using MsgPack;
 using Tarantool.Client.Models.ClientMessages;
@@ -19,9 +20,9 @@ namespace Tarantool.Client
             _connection.Release();
         }
 
-        public Task<Task<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage)
+        public Task<Task<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage, CancellationToken cancellationToken)
         {
-            return _connection.RequestAsync(clientMessage);
+            return _connection.RequestAsync(clientMessage, cancellationToken);
         }
     }
 }

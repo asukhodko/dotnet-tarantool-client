@@ -8,8 +8,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectIndexId()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             var result = await tarantoolClient.FindIndexByNameAsync(281, "owner");
 

@@ -12,8 +12,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task Update()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             try
