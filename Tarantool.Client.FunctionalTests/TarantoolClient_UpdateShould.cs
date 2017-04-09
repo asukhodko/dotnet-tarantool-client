@@ -27,7 +27,7 @@ namespace Tarantool.Client
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 66 },
-                    UpdateUperations = new[]
+                    UpdateOperations = new[]
                     {
                         new UpdateOperation<int>
                         {

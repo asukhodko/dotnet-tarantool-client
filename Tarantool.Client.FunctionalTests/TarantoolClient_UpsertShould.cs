@@ -21,7 +21,7 @@ namespace Tarantool.Client
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 55, "Some name", 1550 },
-                    UpdateUperations = new[]
+                    UpdateOperations = new[]
                     {
                         new UpdateOperation<int>
                         {
@@ -69,7 +69,7 @@ namespace Tarantool.Client
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 44, "Some name", 1440 },
-                    UpdateUperations = new[]
+                    UpdateOperations = new[]
                     {
                         new UpdateOperation<int>
                         {

@@ -40,6 +40,9 @@ namespace Tarantool.Client
 
         Task UpsertAsync(UpsertRequest upsertRequest, CancellationToken cancellationToken = default(CancellationToken));
 
+        Task UpsertAsync<T>(UpsertRequest<T> upsertRequest,
+            CancellationToken cancellationToken = default(CancellationToken));
+
         Task<MessagePackObject> CallAsync(CallRequest callRequest,
             CancellationToken cancellationToken = default(CancellationToken));
 

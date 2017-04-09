@@ -92,6 +92,11 @@ namespace Tarantool.Client
             await RequestAsync(upsertRequest, cancellationToken);
         }
 
+        public async Task UpsertAsync<T>(UpsertRequest<T> upsertRequest, CancellationToken cancellationToken)
+        {
+            await RequestAsync(upsertRequest, cancellationToken);
+        }
+
         public async Task<MessagePackObject> CallAsync(CallRequest callRequest, CancellationToken cancellationToken)
         {
             return await RequestAsync(callRequest, cancellationToken);

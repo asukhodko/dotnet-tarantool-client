@@ -108,7 +108,7 @@ await tarantoolClient.UpdateAsync(new UpdateRequest
 {
     SpaceId = spaceId,
     Key = new object[] { 66 }, // update row where Id = 66
-    UpdateUperations = new []
+    UpdateOperations = new []
     {
         new UpdateOperation<int>
         {
@@ -160,7 +160,7 @@ await tarantoolClient.UpsertAsync(new UpsertRequest
 {
     SpaceId = spaceId,
     Tuple = new object[] { 55, "Some name", 1550 }, // find row with Id = 55 and insert if not exists
-    UpdateUperations = new[]
+    UpdateOperations = new[]
     {
         new UpdateOperation<int> // if row with Id = 55 exist then perform this update operation
         {
