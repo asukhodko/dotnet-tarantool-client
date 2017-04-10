@@ -10,7 +10,7 @@ namespace Tarantool.Client
     {
         Task<IList<T>> SelectAsync(
             IEnumerable<object> key,
-            Iterator iterator,
+            Iterator iterator = Iterator.Eq,
             uint offset = 0,
             uint limit = int.MaxValue,
             CancellationToken cancellationToken = default(CancellationToken));
@@ -18,7 +18,7 @@ namespace Tarantool.Client
         Task<IList<T>> SelectAsync(
             uint indexId,
             IEnumerable<object> key,
-            Iterator iterator,
+            Iterator iterator = Iterator.Eq,
             uint offset = 0,
             uint limit = int.MaxValue,
             CancellationToken cancellationToken = default(CancellationToken));
@@ -26,7 +26,7 @@ namespace Tarantool.Client
         Task<IList<T>> SelectAsync(
             string indexName,
             IEnumerable<object> key,
-            Iterator iterator,
+            Iterator iterator = Iterator.Eq,
             uint offset = 0,
             uint limit = int.MaxValue,
             CancellationToken cancellationToken = default(CancellationToken));

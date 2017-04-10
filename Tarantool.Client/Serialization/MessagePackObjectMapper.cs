@@ -107,7 +107,7 @@ namespace Tarantool.Client.Serialization
             foreach (var property in targetType.GetRuntimeProperties())
             {
                 var attr = property.GetCustomAttribute<MessagePackMemberAttribute>();
-                if (attr != null)
+                if (attr != null && attr.Id < sourceFields.Count)
                     try
                     {
                         var msgPackValue = sourceFields[attr.Id];
