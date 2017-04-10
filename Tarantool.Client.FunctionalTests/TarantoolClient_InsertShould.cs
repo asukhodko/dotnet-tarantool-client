@@ -45,7 +45,7 @@ namespace Tarantool.Client
         public class MyTestEntity
         {
             [MessagePackMember(0)]
-            public int MyTestEntityId { get; set; }
+            public uint MyTestEntityId { get; set; }
 
             [MessagePackMember(1)]
             public string SomeStringField { get; set; }
@@ -79,7 +79,7 @@ namespace Tarantool.Client
                 });
 
                 Assert.Equal(1, result.Count);
-                Assert.Equal(98, result[0].MyTestEntityId);
+                Assert.Equal(98u, result[0].MyTestEntityId);
                 Assert.Equal("Some name", result[0].SomeStringField);
                 Assert.Equal(1900, result[0].SomeIntField);
             }

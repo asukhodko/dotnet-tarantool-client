@@ -86,12 +86,12 @@ namespace Tarantool.Client
             return result;
         }
 
-        public async Task<IList<MessagePackObject>> UpdateAsync(IEnumerable<object> key,
+        public async Task<IList<T>> UpdateAsync(IEnumerable<object> key,
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
             await EnsureHaveSpaceId(cancellationToken);
-            var result = await TarantoolClient.UpdateAsync(new UpdateRequest
+            var result = await TarantoolClient.UpdateAsync<T>(new UpdateRequest
             {
                 SpaceId = _spaceId,
                 Key = key,
@@ -100,12 +100,12 @@ namespace Tarantool.Client
             return result;
         }
 
-        public async Task<IList<MessagePackObject>> UpdateAsync(uint indexId, IEnumerable<object> key,
+        public async Task<IList<T>> UpdateAsync(uint indexId, IEnumerable<object> key,
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
             await EnsureHaveSpaceId(cancellationToken);
-            var result = await TarantoolClient.UpdateAsync(new UpdateRequest
+            var result = await TarantoolClient.UpdateAsync<T>(new UpdateRequest
             {
                 SpaceId = _spaceId,
                 IndexId = indexId,
@@ -115,13 +115,13 @@ namespace Tarantool.Client
             return result;
         }
 
-        public async Task<IList<MessagePackObject>> UpdateAsync(string indexName, IEnumerable<object> key,
+        public async Task<IList<T>> UpdateAsync(string indexName, IEnumerable<object> key,
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
             await EnsureHaveSpaceId(cancellationToken);
             var index = await FindIndexByNameAsync(indexName, cancellationToken);
-            var result = await TarantoolClient.UpdateAsync(new UpdateRequest
+            var result = await TarantoolClient.UpdateAsync<T>(new UpdateRequest
             {
                 SpaceId = _spaceId,
                 IndexId = index.IndexId,

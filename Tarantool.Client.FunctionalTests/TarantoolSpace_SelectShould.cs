@@ -10,6 +10,18 @@ namespace Tarantool.Client
 {
     public class TarantoolSpace_SelectShould
     {
+        public class MyTestEntity
+        {
+            [MessagePackMember(0)]
+            public uint MyTestEntityId { get; set; }
+
+            [MessagePackMember(1)]
+            public string SomeStringField { get; set; }
+
+            [MessagePackMember(2)]
+            public int SomeIntField { get; set; }
+        }
+
         [Fact]
         public async Task SelectAll()
         {
@@ -51,18 +63,6 @@ namespace Tarantool.Client
                 result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
         }
 
-        public class MyTestEntity
-        {
-            [MessagePackMember(0)]
-            public int MyTestEntityId { get; set; }
-
-            [MessagePackMember(1)]
-            public string SomeStringField { get; set; }
-
-            [MessagePackMember(2)]
-            public int SomeIntField { get; set; }
-        }
-
         [Fact]
         public async Task SelectEntityBy1()
         {
@@ -72,7 +72,7 @@ namespace Tarantool.Client
             var result = await testSpace.SelectAsync(new List<dynamic> { 1 });
 
             Assert.Equal(1, result.Count);
-            Assert.Equal(1, result[0].MyTestEntityId);
+            Assert.Equal(1u, result[0].MyTestEntityId);
             Assert.Equal("Roxette", result[0].SomeStringField);
         }
     }

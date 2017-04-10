@@ -29,6 +29,9 @@ namespace Tarantool.Client
         Task<IList<MessagePackObject>> UpdateAsync(UpdateRequest updateRequest,
             CancellationToken cancellationToken = default(CancellationToken));
 
+        Task<IList<T>> UpdateAsync<T>(UpdateRequest updateRequest,
+            CancellationToken cancellationToken = default(CancellationToken));
+
         Task<IList<MessagePackObject>> DeleteAsync(DeleteRequest deleteRequest,
             CancellationToken cancellationToken = default(CancellationToken));
 

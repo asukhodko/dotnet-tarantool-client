@@ -68,6 +68,13 @@ namespace Tarantool.Client
             return (await RequestAsync(updateRequest, cancellationToken)).AsList();
         }
 
+        public async Task<IList<T>> UpdateAsync<T>(UpdateRequest updateRequest,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var result = (await RequestAsync(updateRequest, cancellationToken)).AsList();
+            return MapCollection<T>(result).ToList();
+        }
+
         public async Task<IList<MessagePackObject>> DeleteAsync(DeleteRequest deleteRequest,
             CancellationToken cancellationToken)
         {

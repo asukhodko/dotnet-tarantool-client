@@ -1,8 +1,8 @@
 Tarantool .NET client
 =====================
 
-.NET client (connector/driver) for Tarantool database (https://tarantool.org/).
-Works both with .NET Core and .NET Framework (>= 4.6.1).
+.NET client (connector/driver) for Tarantool database (https://tarantool.org/) with ORM support.
+Works both with .NET Core and .NET Framework.
 
 [Get dotnet TarantoolClient package on NuGet](https://www.nuget.org/packages/TarantoolClient)
 
@@ -11,9 +11,112 @@ PM> Install-Package TarantoolClient
 ```
 [![Latest stable](https://img.shields.io/nuget/v/TarantoolClient.svg)](https://www.nuget.org/packages/TarantoolClient)
 
-Basic tarantool operations
----------------
-Next examples assume to these usings:
+Working with Tarantool spaces like collections
+----------------------------------------------
+
+The examples assume to these usings:
+```C#
+using Tarantool.Client;
+using Tarantool.Client.Models;
+using MsgPack.Serialization;
+```
+Create TarantoolClient instance:
+```C#
+var tarantoolClient = TarantoolClient.Create("tarantool://user:pass@tarantool-host:3301");
+```
+
+### Defining a model
+```C#
+public class MyTestEntity
+{
+    [MessagePackMember(0)]
+    public uint MyTestEntityId { get; set; }
+
+    [MessagePackMember(1)]
+    public string SomeStringField { get; set; }
+
+    [MessagePackMember(2)]
+    public int SomeIntField { get; set; }
+}
+```
+### Map space with model
+```C#
+var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
+```
+
+### Select by key
+```C#
+var result = await testSpace.SelectAsync(new object[] { 3 }); // where primary indexed key = 3
+```
+
+### Select from secondary index by key
+```C#
+var result = await testSpace.SelectAsync("secondaryIndexName", new object[] { "some value" });
+```
+
+### Insert
+```C#
+await testSpace.InsertAsync(new MyTestEntity
+{
+    MyTestEntityId = 198,
+    SomeStringField = "Some name",
+    SomeIntField = 1900
+});
+```
+
+### Update
+```C#
+await testSpace.UpdateAsync(
+    new List<object> { 166u }, // key
+    new[] // update operations array
+    {
+        new UpdateOperation<int>
+        {
+            Operation = UpdateOperationCode.Assign,
+            FieldNo = 2,
+            Argument = 1666
+        }
+    });
+```
+
+### Delete
+```C#
+await testSpace.DeleteAsync(new List<object> { 166u });
+```
+
+### Replace
+```C#
+await testSpace.ReplaceAsync(new MyTestEntity
+{
+    MyTestEntityId = 176,
+    SomeStringField = "Some new name",
+    SomeIntField = 1776
+});
+```
+
+### Upsert
+```C#
+await testSpace.UpsertAsync(
+    new MyTestEntity
+    {
+        MyTestEntityId = 544,
+        SomeStringField = "Some name",
+        SomeIntField = 1440
+    },
+    new[]
+    {
+        new UpdateOperation<int>
+        {
+            Operation = UpdateOperationCode.Assign,
+            FieldNo = 2,
+            Argument = 1444
+        }
+    });
+```
+
+Core Tarantool operations
+-------------------------
+The examples assume to these usings:
 ```C#
 using Tarantool.Client;
 using Tarantool.Client.Models;
@@ -35,20 +138,6 @@ var rows = await tarantoolClient.SelectAsync(new SelectRequest
 ```
 or with object mapping to custom type:
 ```C#
-using MsgPack.Serialization;
-
-public class MyTestEntity
-{
-    [MessagePackMember(0)]
-    public int MyTestEntityId { get; set; }
-
-    [MessagePackMember(1)]
-    public string SomeStringField { get; set; }
-
-    [MessagePackMember(2)]
-    public int SomeIntField { get; set; }
-}
-
 var rows = await tarantoolClient.SelectAsync<MyTestEntity>(new SelectRequest
 {
     SpaceId = spaceId,
@@ -193,8 +282,6 @@ Or with Tarantool.Client.Extensions:
 ```C#
 var result = await tarantoolClient.EvalAsync("return ...", 912345, 923456, 934567);
 ```
-### Other examples
-You can find more examples in unit tests available with TarantoolClient source code.
 
 DDL-operations
 --------------
@@ -224,10 +311,6 @@ await tarantoolClient.CreateIndexAsync("some_space",
 await tarantoolClient.DropIndexAsync("some_space", "index_name");
 ```
 
-High-level operations and ORM
------------------------------
-
-At this time package contains only low-level application interface (API)
-for operations with Tarantool database.
-Object-Relational Mapping (ORM) for Tarantool is under development.
-
+Other examples
+--------------
+You can find more examples in unit tests available with TarantoolClient source code.

@@ -33,18 +33,18 @@ namespace Tarantool.Client
 
         Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IList<MessagePackObject>> UpdateAsync(
+        Task<IList<T>> UpdateAsync(
             IEnumerable<object> key,
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IList<MessagePackObject>> UpdateAsync(
+        Task<IList<T>> UpdateAsync(
             uint indexId,
             IEnumerable<object> key,
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IList<MessagePackObject>> UpdateAsync(
+        Task<IList<T>> UpdateAsync(
             string indexName,
             IEnumerable<object> key,
             IEnumerable<UpdateOperation> updateOperations,
