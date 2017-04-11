@@ -11,12 +11,11 @@ namespace Tarantool.Client
     {
         private readonly Dictionary<string, Index> _indexes = new Dictionary<string, Index>();
         private readonly string _spaceName;
-        private uint _spaceId;
 
         public TarantoolSpace(ITarantoolClient tarantoolClient, uint spaceId)
         {
             TarantoolClient = tarantoolClient;
-            _spaceId = spaceId;
+            SpaceId = spaceId;
         }
 
         public TarantoolSpace(ITarantoolClient tarantoolClient, string spaceName)
@@ -25,62 +24,26 @@ namespace Tarantool.Client
             _spaceName = spaceName;
         }
 
+        public uint SpaceId { get; private set; }
+
         public ITarantoolClient TarantoolClient { get; }
 
-        public async Task<IList<T>> SelectAsync(IEnumerable<object> key, Iterator iterator, uint offset, uint limit,
-            CancellationToken cancellationToken)
+        public ITarantoolIndex<T, TK> GetIndex<TK>(uint indexId)
         {
-            await EnsureHaveSpaceId(cancellationToken);
-            var result = await TarantoolClient.SelectAsync<T>(new SelectRequest
-            {
-                SpaceId = _spaceId,
-                Key = key,
-                Iterator = iterator,
-                Offset = offset,
-                Limit = limit
-            }, cancellationToken);
-            return result;
+            return new TarantoolIndex<T, TK>(TarantoolClient, this, indexId);
         }
 
-        public async Task<IList<T>> SelectAsync(uint indexId, IEnumerable<object> key, Iterator iterator, uint offset,
-            uint limit, CancellationToken cancellationToken)
+        public ITarantoolIndex<T, TK> GetIndex<TK>(string indexName)
         {
-            await EnsureHaveSpaceId(cancellationToken);
-            var result = await TarantoolClient.SelectAsync<T>(new SelectRequest
-            {
-                SpaceId = _spaceId,
-                IndexId = indexId,
-                Key = key,
-                Iterator = iterator,
-                Offset = offset,
-                Limit = limit
-            }, cancellationToken);
-            return result;
-        }
-
-        public async Task<IList<T>> SelectAsync(string indexName, IEnumerable<object> key, Iterator iterator,
-            uint offset, uint limit, CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceId(cancellationToken);
-            var index = await FindIndexByNameAsync(indexName, cancellationToken);
-            var result = await TarantoolClient.SelectAsync<T>(new SelectRequest
-            {
-                SpaceId = _spaceId,
-                IndexId = index.IndexId,
-                Key = key,
-                Iterator = iterator,
-                Offset = offset,
-                Limit = limit
-            }, cancellationToken);
-            return result;
+            return new TarantoolIndex<T, TK>(TarantoolClient, this, indexName);
         }
 
         public async Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var result = await TarantoolClient.InsertAsync(new InsertRequest<T>
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 Tuple = entity
             }, cancellationToken);
             return result;
@@ -90,10 +53,10 @@ namespace Tarantool.Client
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var result = await TarantoolClient.UpdateAsync<T>(new UpdateRequest
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 Key = key,
                 UpdateOperations = updateOperations
             }, cancellationToken);
@@ -104,10 +67,10 @@ namespace Tarantool.Client
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var result = await TarantoolClient.UpdateAsync<T>(new UpdateRequest
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 IndexId = indexId,
                 Key = key,
                 UpdateOperations = updateOperations
@@ -119,11 +82,11 @@ namespace Tarantool.Client
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var index = await FindIndexByNameAsync(indexName, cancellationToken);
             var result = await TarantoolClient.UpdateAsync<T>(new UpdateRequest
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 IndexId = index.IndexId,
                 Key = key,
                 UpdateOperations = updateOperations
@@ -134,10 +97,10 @@ namespace Tarantool.Client
         public async Task<IList<MessagePackObject>> DeleteAsync(IEnumerable<object> key,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var result = await TarantoolClient.DeleteAsync(new DeleteRequest
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 Key = key
             }, cancellationToken);
             return result;
@@ -146,10 +109,10 @@ namespace Tarantool.Client
         public async Task<IList<MessagePackObject>> DeleteAsync(uint indexId, IEnumerable<object> key,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var result = await TarantoolClient.DeleteAsync(new DeleteRequest
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 IndexId = indexId,
                 Key = key
             }, cancellationToken);
@@ -159,11 +122,11 @@ namespace Tarantool.Client
         public async Task<IList<MessagePackObject>> DeleteAsync(string indexName, IEnumerable<object> key,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var index = await FindIndexByNameAsync(indexName, cancellationToken);
             var result = await TarantoolClient.DeleteAsync(new DeleteRequest
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 IndexId = index.IndexId,
                 Key = key
             }, cancellationToken);
@@ -172,10 +135,10 @@ namespace Tarantool.Client
 
         public async Task<IList<T>> ReplaceAsync(T entity, CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             var result = await TarantoolClient.ReplaceAsync(new ReplaceRequest<T>
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 Tuple = entity
             }, cancellationToken);
             return result;
@@ -184,10 +147,10 @@ namespace Tarantool.Client
         public async Task UpsertAsync(T entity, IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             await TarantoolClient.UpsertAsync(new UpsertRequest<T>
             {
-                SpaceId = _spaceId,
+                SpaceId = SpaceId,
                 Tuple = entity,
                 UpdateOperations = updateOperations
             }, cancellationToken);
@@ -195,18 +158,18 @@ namespace Tarantool.Client
 
         public async Task<Index> FindIndexByNameAsync(string indexName, CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceId(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken);
             if (!_indexes.ContainsKey(indexName))
                 _indexes[indexName] =
-                    await TarantoolClient.FindIndexByNameAsync(_spaceId, indexName, cancellationToken);
+                    await TarantoolClient.FindIndexByNameAsync(SpaceId, indexName, cancellationToken);
             return _indexes[indexName];
         }
 
-        private async Task EnsureHaveSpaceId(CancellationToken cancellationToken)
+        public async Task EnsureHaveSpaceIdAsync(CancellationToken cancellationToken)
         {
-            if (_spaceId != 0)
+            if (SpaceId != 0)
                 return;
-            _spaceId = (await TarantoolClient.FindSpaceByNameAsync(_spaceName, cancellationToken)).SpaceId;
+            SpaceId = (await TarantoolClient.FindSpaceByNameAsync(_spaceName, cancellationToken)).SpaceId;
         }
     }
 }

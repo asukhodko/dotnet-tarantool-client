@@ -8,28 +8,11 @@ namespace Tarantool.Client
 {
     public interface ITarantoolSpace<T>
     {
-        Task<IList<T>> SelectAsync(
-            IEnumerable<object> key,
-            Iterator iterator = Iterator.Eq,
-            uint offset = 0,
-            uint limit = int.MaxValue,
-            CancellationToken cancellationToken = default(CancellationToken));
+        uint SpaceId { get; }
+        Task EnsureHaveSpaceIdAsync(CancellationToken cancellationToken);
+        ITarantoolIndex<T, TK> GetIndex<TK>(uint indexId);
 
-        Task<IList<T>> SelectAsync(
-            uint indexId,
-            IEnumerable<object> key,
-            Iterator iterator = Iterator.Eq,
-            uint offset = 0,
-            uint limit = int.MaxValue,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<IList<T>> SelectAsync(
-            string indexName,
-            IEnumerable<object> key,
-            Iterator iterator = Iterator.Eq,
-            uint offset = 0,
-            uint limit = int.MaxValue,
-            CancellationToken cancellationToken = default(CancellationToken));
+        ITarantoolIndex<T, TK> GetIndex<TK>(string indexName);
 
         Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
 

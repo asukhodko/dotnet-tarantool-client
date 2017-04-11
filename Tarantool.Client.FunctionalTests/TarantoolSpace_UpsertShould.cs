@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using MsgPack.Serialization;
 using Tarantool.Client.Models;
-using Tarantool.Client.Models.ClientMessages;
 using Xunit;
 
 namespace Tarantool.Client
@@ -27,6 +25,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
+            var testSpacePrimaryIndex = testSpace.GetIndex<uint>(0);
 
             try
             {
@@ -47,7 +46,7 @@ namespace Tarantool.Client
                         }
                     });
 
-                var result = await testSpace.SelectAsync(new List<object> { 555u });
+                var result = await testSpacePrimaryIndex.SelectAsync(555);
                 Assert.Equal(1, result.Count);
                 Assert.Equal(555u, result[0].MyTestEntityId);
                 Assert.Equal("Some name", result[0].SomeStringField);
@@ -64,6 +63,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
+            var testSpacePrimaryIndex = testSpace.GetIndex<uint>(0);
 
             try
             {
@@ -91,7 +91,7 @@ namespace Tarantool.Client
                         }
                     });
 
-                var result = await testSpace.SelectAsync(new List<object> { 544u });
+                var result = await testSpacePrimaryIndex.SelectAsync(544);
                 Assert.Equal(1, result.Count);
                 Assert.Equal(544u, result[0].MyTestEntityId);
                 Assert.Equal("Some name", result[0].SomeStringField);
