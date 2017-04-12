@@ -14,15 +14,15 @@ namespace Tarantool.Client
             box.schema.user.grant('mytestuser', 'read', 'space', '_priv')
             box.schema.user.grant('mytestuser', 'execute', 'universe')
 
-            box.schema.create_space('test', {user = 'mytestuser'})
-            box.space.test:create_index('primary', {type = 'hash', parts = {1, 'unsigned'}})
-
-            box.schema.func.create('some_function')
-            box.schema.user.grant('mytestuser', 'execute', 'function', 'some_function')
-
             function some_function()
                 return "ok"
             end
+
+            box.schema.create_space('test', {user = 'mytestuser'})
+            box.space.test:create_index('primary', {type = 'tree', parts = {1, 'unsigned'}})
+
+            box.schema.func.create('some_function')
+            box.schema.user.grant('mytestuser', 'execute', 'function', 'some_function')
 
             s = box.space.test
             s:insert({1, 'Roxette'})
