@@ -10,13 +10,13 @@ namespace Tarantool.Client.Models.ClientMessages
             : base(TarantoolCommand.Update)
         {
             Key = new List<object>();
-            UpdateUperations = new List<UpdateOperation>();
+            UpdateOperations = new List<UpdateOperation>();
         }
 
         public uint SpaceId { get; set; }
         public uint IndexId { get; set; }
         public IEnumerable<object> Key { get; set; }
-        public IEnumerable<UpdateOperation> UpdateUperations { get; set; }
+        public IEnumerable<UpdateOperation> UpdateOperations { get; set; }
 
         public override void PackToMessage(Packer packer, PackingOptions options)
         {
@@ -34,8 +34,8 @@ namespace Tarantool.Client.Models.ClientMessages
             packer.PackArray(Key);
 
             packer.Pack((byte)TarantoolKey.Tuple);
-            packer.PackArrayHeader(UpdateUperations.Count());
-            foreach (var operation in UpdateUperations)
+            packer.PackArrayHeader(UpdateOperations.Count());
+            foreach (var operation in UpdateOperations)
             {
                 operation.PackToMessage(packer, options);
             }

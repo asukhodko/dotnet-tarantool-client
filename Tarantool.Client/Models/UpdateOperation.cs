@@ -1,5 +1,5 @@
 ﻿using MsgPack;
-using Tarantool.Client.Helpers;
+using Tarantool.Client.Serialization.Attributes;
 
 namespace Tarantool.Client.Models
 {

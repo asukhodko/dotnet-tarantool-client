@@ -3,16 +3,16 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
     <Authors>Aleksandr Sukhodko</Authors>
-    <Description>.NET client (connector/driver) for Tarantool database</Description>
+    <Description>.NET client (connector/driver) for Tarantool database with ORM support</Description>
     <Copyright>Copyright 2017</Copyright>
     <PackageProjectUrl>https://github.com/asukhodko/dotnet-tarantool-client</PackageProjectUrl>
-    <PackageTags>tarantool</PackageTags>
+    <PackageTags>tarantool;iproto</PackageTags>
     <PackageLicenseUrl>https://raw.githubusercontent.com/asukhodko/dotnet-tarantool-client/master/LICENSE.md</PackageLicenseUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>TarantoolClient</PackageId>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <FileVersion>1.1.1.0</FileVersion>
-    <Version>1.1.1</Version>
+    <AssemblyVersion>2.0.0.3</AssemblyVersion>
+    <FileVersion>2.0.0.3</FileVersion>
+    <Version>2.0.1-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Tarantool.Client.Helpers
+namespace Tarantool.Client.Serialization.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class StringValueAttribute : Attribute

@@ -3,9 +3,9 @@ using MsgPack;
 
 namespace Tarantool.Client.Models.ClientMessages
 {
-    public class DeletetRequest : ClientMessageBase
+    public class DeleteRequest : ClientMessageBase
     {
-        public DeletetRequest()
+        public DeleteRequest()
             : base(TarantoolCommand.Delete)
         {
             Key = new List<object>();
