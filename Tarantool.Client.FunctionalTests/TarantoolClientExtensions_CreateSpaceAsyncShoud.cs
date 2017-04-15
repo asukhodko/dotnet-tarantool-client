@@ -9,8 +9,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task CreateSpace()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {
@@ -18,8 +17,7 @@ namespace Tarantool.Client
 
                 var result = await tarantoolClient.FindSpaceByNameAsync("test2");
                 Assert.NotNull(result);
-                Assert.True(result.Count >= 2);
-                Assert.Equal("test2", result[2].AsString());
+                Assert.Equal("test2", result.Name);
             }
             finally
             {
@@ -30,8 +28,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task HandleSpaceExists()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {

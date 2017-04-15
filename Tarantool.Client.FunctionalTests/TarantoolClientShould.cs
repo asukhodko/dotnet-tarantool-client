@@ -14,15 +14,15 @@ namespace Tarantool.Client
             box.schema.user.grant('mytestuser', 'read', 'space', '_priv')
             box.schema.user.grant('mytestuser', 'execute', 'universe')
 
-            box.schema.create_space('test', {user = 'mytestuser'})
-            box.space.test:create_index('primary', {type = 'hash', parts = {1, 'unsigned'}})
-
-            box.schema.func.create('some_function')
-            box.schema.user.grant('mytestuser', 'execute', 'function', 'some_function')
-
             function some_function()
                 return "ok"
             end
+
+            box.schema.create_space('test', {user = 'mytestuser'})
+            box.space.test:create_index('primary', {type = 'tree', parts = {1, 'unsigned'}})
+
+            box.schema.func.create('some_function')
+            box.schema.user.grant('mytestuser', 'execute', 'function', 'some_function')
 
             s = box.space.test
             s:insert({1, 'Roxette'})
@@ -33,23 +33,21 @@ namespace Tarantool.Client
         [Fact]
         public async Task ConnectAsGuest()
         {
-            var tarantoolClient = new TarantoolClient("tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            var tarantoolClient = TarantoolClient.Create("tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
             await tarantoolClient.ConnectAsync();
         }
 
         [Fact]
         public async Task ConnectAsUser()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
             await tarantoolClient.ConnectAsync();
         }
 
         [Fact]
         public async Task NotConnectAsInvalidUser()
         {
-            var tarantoolClient =
-                new TarantoolClient(
+            var tarantoolClient = TarantoolClient.Create(
                     "invaliduser:invalidpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
 
             var ex = await Assert.ThrowsAsync<TarantoolException>(() => tarantoolClient.ConnectAsync());

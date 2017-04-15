@@ -10,8 +10,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task CreateIndex()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {
@@ -20,13 +19,13 @@ namespace Tarantool.Client
                 await tarantoolClient.CreateIndexAsync("testforindex1", "primary", IndexType.Hash,
                     new IndexPart(0, IndexedFieldType.Unsigned));
 
-                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex1"))[0].AsUInt32();
+                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex1")).SpaceId;
                 var result = await tarantoolClient.FindIndexByNameAsync(spaceId, "primary");
                 Assert.NotNull(result);
-                Assert.True(result.Count >= 3);
-                Assert.Equal(spaceId, result[0].AsUInt32());
-                Assert.Equal("primary", result[2].AsString());
-                Assert.Equal("hash", result[3].AsString().ToLower());
+                Assert.NotNull(result);
+                Assert.Equal(spaceId, result.SpaceId);
+                Assert.Equal("primary", result.Name);
+                Assert.Equal(IndexType.Hash, result.IndexType);
             }
             finally
             {
@@ -37,8 +36,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task DropIndex()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {
@@ -48,7 +46,7 @@ namespace Tarantool.Client
 
                 await tarantoolClient.DropIndexAsync("testforindex3", "primary");
 
-                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex3"))[0].AsUInt32();
+                var spaceId = (await tarantoolClient.FindSpaceByNameAsync("testforindex3")).SpaceId;
                 var result = await tarantoolClient.FindIndexByNameAsync(spaceId, "primary");
                 Assert.Null(result);
             }
@@ -61,8 +59,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task HandleIndexExists()
         {
-            var tarantoolClient =
-                new TarantoolClient("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
 
             try
             {
