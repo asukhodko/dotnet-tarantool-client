@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MsgPack.Serialization;
+
+using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 using Xunit;
 
@@ -26,6 +28,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
+            var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
             try
             {
@@ -50,7 +53,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await testSpace.DeleteAsync(new List<object> { 576u });
+                await testSpacePrimaryIndex.DeleteAsync(new IndexKey<uint>(576));
             }
         }
     }

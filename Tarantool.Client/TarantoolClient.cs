@@ -83,6 +83,19 @@ namespace Tarantool.Client
             return (await RequestAsync(deleteRequest, cancellationToken).ConfigureAwait(false)).AsList();
         }
 
+        /// <summary>Performs a DELETE request.</summary>
+        /// <param name="deleteRequest">The delete request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <typeparam name="T">The class for object mapping.</typeparam>
+        /// <returns>The <see cref="Task" /> with list of deleted rows.</returns>
+        public async Task<IList<T>> DeleteAsync<T>(
+            DeleteRequest deleteRequest,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var result = (await RequestAsync(deleteRequest, cancellationToken).ConfigureAwait(false)).AsList();
+            return MapCollection<T>(result).ToList();
+        }
+
         /// <summary>Performs an EVAL request.</summary>
         /// <param name="evalRequest">The call request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>

@@ -11,7 +11,7 @@ namespace Tarantool.Client
     /// <typeparam name="TKey">The <see cref="IndexKey"/> type.</typeparam>
     public interface ITarantoolIndex<T, in TKey> where TKey : IndexKey
     {
-        /// <summary>Gets the index id. Return null if id not have yet (see <see cref="EnsureHaveIndexIdAsync" />).</summary>
+        /// <summary>Gets the index id. Returns null if id not have yet (see <see cref="EnsureHaveIndexIdAsync" />).</summary>
         uint? IndexId { get; }
 
         /// <summary>Ensures have index id. If not then retrieves it by name. </summary>
@@ -43,6 +43,14 @@ namespace Tarantool.Client
             Iterator iterator = Iterator.Eq,
             uint offset = 0,
             uint limit = int.MaxValue,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>Delete from space by key.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        Task<IList<T>> DeleteAsync(
+            TKey key,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

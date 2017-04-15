@@ -31,42 +31,6 @@ namespace Tarantool.Client
 
         public ITarantoolClient TarantoolClient { get; }
 
-        public async Task<IList<MessagePackObject>> DeleteAsync(
-            IEnumerable<object> key,
-            CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
-            var result = await TarantoolClient.DeleteAsync(
-                             new DeleteRequest { SpaceId = SpaceId, Key = key },
-                             cancellationToken);
-            return result;
-        }
-
-        public async Task<IList<MessagePackObject>> DeleteAsync(
-            uint indexId,
-            IEnumerable<object> key,
-            CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
-            var result = await TarantoolClient.DeleteAsync(
-                             new DeleteRequest { SpaceId = SpaceId, IndexId = indexId, Key = key },
-                             cancellationToken);
-            return result;
-        }
-
-        public async Task<IList<MessagePackObject>> DeleteAsync(
-            string indexName,
-            IEnumerable<object> key,
-            CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
-            var index = await FindIndexByNameAsync(indexName, cancellationToken);
-            var result = await TarantoolClient.DeleteAsync(
-                             new DeleteRequest { SpaceId = SpaceId, IndexId = index.IndexId, Key = key },
-                             cancellationToken);
-            return result;
-        }
-
         public async Task EnsureHaveSpaceIdAsync(CancellationToken cancellationToken)
         {
             if (SpaceId != 0) return;

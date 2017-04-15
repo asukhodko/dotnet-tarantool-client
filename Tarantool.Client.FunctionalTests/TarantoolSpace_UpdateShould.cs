@@ -27,6 +27,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
+            var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
             try
             {
@@ -56,7 +57,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await testSpace.DeleteAsync(new List<object> { 566u });
+                await testSpacePrimaryIndex.DeleteAsync(new IndexKey<uint>(566));
             }
         }
     }

@@ -114,5 +114,26 @@ namespace Tarantool.Client
                              .ConfigureAwait(false);
             return result;
         }
+
+        /// <summary>Delete from space by key.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public async Task<IList<T>> DeleteAsync(
+            TKey key,
+            CancellationToken cancellationToken)
+        {
+            await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
+            Debug.Assert(IndexId != null, "IndexId != null");
+            var result = await TarantoolClient.DeleteAsync<T>(
+                             new DeleteRequest
+                             {
+                                 SpaceId = Space.SpaceId,
+                                 IndexId = IndexId.Value,
+                                 Key = key.Key
+                             },
+                             cancellationToken).ConfigureAwait(false);
+            return result;
+        }
     }
 }

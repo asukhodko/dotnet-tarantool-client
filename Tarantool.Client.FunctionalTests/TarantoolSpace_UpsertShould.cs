@@ -54,7 +54,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await testSpace.DeleteAsync(new List<object> { 555u });
+                await testSpacePrimaryIndex.DeleteAsync(new IndexKey<uint>(555));
             }
         }
 
@@ -99,7 +99,7 @@ namespace Tarantool.Client
             }
             finally
             {
-                await testSpace.DeleteAsync(new List<object> { 544u });
+                await testSpacePrimaryIndex.DeleteAsync(new IndexKey<uint>(544));
             }
         }
     }
