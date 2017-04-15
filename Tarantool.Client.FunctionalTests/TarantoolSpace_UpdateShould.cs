@@ -38,8 +38,8 @@ namespace Tarantool.Client
                     SomeIntField = 1600
                 });
 
-                var result = await testSpace.UpdateAsync(
-                    new List<object> { 566u },
+                var result = await testSpacePrimaryIndex.UpdateAsync(
+                    new IndexKey<uint>(566),
                     new[]
                     {
                         new UpdateOperation<int>

@@ -2,8 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using MsgPack;
-
 using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 
@@ -27,100 +25,66 @@ namespace Tarantool.Client
             _spaceName = spaceName;
         }
 
+        /// <summary>Gets the space id. Returns 0 if id not have yet (see <see cref="EnsureHaveSpaceIdAsync" />).</summary>
         public uint SpaceId { get; private set; }
 
-        public ITarantoolClient TarantoolClient { get; }
+        private ITarantoolClient TarantoolClient { get; }
 
+        /// <summary>Ensures have space id. If not then retrieves it by name. </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
         public async Task EnsureHaveSpaceIdAsync(CancellationToken cancellationToken)
         {
             if (SpaceId != 0) return;
-            SpaceId = (await TarantoolClient.FindSpaceByNameAsync(_spaceName, cancellationToken)).SpaceId;
+            SpaceId = (await TarantoolClient.FindSpaceByNameAsync(_spaceName, cancellationToken).ConfigureAwait(false))
+                .SpaceId;
         }
 
-        public async Task<Index> FindIndexByNameAsync(string indexName, CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
-            if (!_indexes.ContainsKey(indexName))
-                _indexes[indexName] = await TarantoolClient.FindIndexByNameAsync(SpaceId, indexName, cancellationToken);
-            return _indexes[indexName];
-        }
-
-        public ITarantoolIndex<T, TKey> GetIndex<TKey>(uint indexId) where TKey : IndexKey
+        /// <summary>Return an instance of the <see cref="ITarantoolIndex{T, TKey}" /> interface by index id.</summary>
+        /// <param name="indexId">The index id.</param>
+        /// <typeparam name="TKey">The <see cref="IndexKey" /> type.</typeparam>
+        /// <returns>The <see cref="ITarantoolIndex{T, TKey}" />.</returns>
+        public ITarantoolIndex<T, TKey> GetIndex<TKey>(uint indexId)
+            where TKey : IndexKey
         {
             return new TarantoolIndex<T, TKey>(TarantoolClient, this, indexId);
         }
 
-        public ITarantoolIndex<T, TKey> GetIndex<TKey>(string indexName) where TKey : IndexKey
+        /// <summary>Return an instance of the <see cref="ITarantoolIndex{T, TKey}" /> interface by index name.</summary>
+        /// <param name="indexName">The index name.</param>
+        /// <typeparam name="TKey">The <see cref="IndexKey" /> type.</typeparam>
+        /// <returns>The <see cref="ITarantoolIndex{T, TKey}" />.</returns>
+        public ITarantoolIndex<T, TKey> GetIndex<TKey>(string indexName)
+            where TKey : IndexKey
         {
             return new TarantoolIndex<T, TKey>(TarantoolClient, this, indexName);
         }
 
+        /// <summary>Inserts entity into space.</summary>
+        /// <param name="entity">The entity for insert.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
         public async Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
             var result = await TarantoolClient.InsertAsync(
-                             new InsertRequest<T> { SpaceId = SpaceId, Tuple = entity },
-                             cancellationToken);
+                                 new InsertRequest<T> { SpaceId = SpaceId, Tuple = entity },
+                                 cancellationToken)
+                             .ConfigureAwait(false);
             return result;
         }
 
+        /// <summary>Replaces entity in space.</summary>
+        /// <param name="entity">The entity for replace.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
         public async Task<IList<T>> ReplaceAsync(T entity, CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
             var result = await TarantoolClient.ReplaceAsync(
-                             new ReplaceRequest<T> { SpaceId = SpaceId, Tuple = entity },
-                             cancellationToken);
-            return result;
-        }
-
-        public async Task<IList<T>> UpdateAsync(
-            IEnumerable<object> key,
-            IEnumerable<UpdateOperation> updateOperations,
-            CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
-            var result = await TarantoolClient.UpdateAsync<T>(
-                             new UpdateRequest { SpaceId = SpaceId, Key = key, UpdateOperations = updateOperations },
-                             cancellationToken);
-            return result;
-        }
-
-        public async Task<IList<T>> UpdateAsync(
-            uint indexId,
-            IEnumerable<object> key,
-            IEnumerable<UpdateOperation> updateOperations,
-            CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
-            var result = await TarantoolClient.UpdateAsync<T>(
-                             new UpdateRequest
-                             {
-                                 SpaceId = SpaceId,
-                                 IndexId = indexId,
-                                 Key = key,
-                                 UpdateOperations = updateOperations
-                             },
-                             cancellationToken);
-            return result;
-        }
-
-        public async Task<IList<T>> UpdateAsync(
-            string indexName,
-            IEnumerable<object> key,
-            IEnumerable<UpdateOperation> updateOperations,
-            CancellationToken cancellationToken)
-        {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
-            var index = await FindIndexByNameAsync(indexName, cancellationToken);
-            var result = await TarantoolClient.UpdateAsync<T>(
-                             new UpdateRequest
-                             {
-                                 SpaceId = SpaceId,
-                                 IndexId = index.IndexId,
-                                 Key = key,
-                                 UpdateOperations = updateOperations
-                             },
-                             cancellationToken);
+                                 new ReplaceRequest<T> { SpaceId = SpaceId, Tuple = entity },
+                                 cancellationToken)
+                             .ConfigureAwait(false);
             return result;
         }
 

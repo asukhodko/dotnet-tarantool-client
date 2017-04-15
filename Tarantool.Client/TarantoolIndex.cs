@@ -16,7 +16,7 @@ namespace Tarantool.Client
     {
         private readonly string _indexName;
 
-        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T, TKey}" /> class by indexId.</summary>
+        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T, TKey}" /> class by index id.</summary>
         /// <param name="tarantoolClient">The tarantool client.</param>
         /// <param name="space">The space.</param>
         /// <param name="indexId">The index id.</param>
@@ -27,7 +27,7 @@ namespace Tarantool.Client
             IndexId = indexId;
         }
 
-        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T, TKey}" /> class by indexName.</summary>
+        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T, TKey}" /> class by index name.</summary>
         /// <param name="tarantoolClient">The tarantool client.</param>
         /// <param name="space">The space.</param>
         /// <param name="indexName">The index name.</param>
@@ -44,6 +44,21 @@ namespace Tarantool.Client
         private ITarantoolSpace<T> Space { get; }
 
         private ITarantoolClient TarantoolClient { get; }
+
+        /// <summary>Delete from space by key.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
+        public async Task<IList<T>> DeleteAsync(TKey key, CancellationToken cancellationToken)
+        {
+            await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
+            Debug.Assert(IndexId != null, "IndexId != null");
+            var result = await TarantoolClient.DeleteAsync<T>(
+                                 new DeleteRequest { SpaceId = Space.SpaceId, IndexId = IndexId.Value, Key = key.Key },
+                                 cancellationToken)
+                             .ConfigureAwait(false);
+            return result;
+        }
 
         /// <summary>Ensures have index id. If not then retrieves it by name. </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -115,24 +130,28 @@ namespace Tarantool.Client
             return result;
         }
 
-        /// <summary>Delete from space by key.</summary>
+        /// <summary>Performs an updates in space.</summary>
         /// <param name="key">The key.</param>
+        /// <param name="updateOperations">The update operations list.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public async Task<IList<T>> DeleteAsync(
+        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
+        public async Task<IList<T>> UpdateAsync(
             TKey key,
+            IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
             await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
             Debug.Assert(IndexId != null, "IndexId != null");
-            var result = await TarantoolClient.DeleteAsync<T>(
-                             new DeleteRequest
-                             {
-                                 SpaceId = Space.SpaceId,
-                                 IndexId = IndexId.Value,
-                                 Key = key.Key
-                             },
-                             cancellationToken).ConfigureAwait(false);
+            var result = await TarantoolClient.UpdateAsync<T>(
+                                 new UpdateRequest
+                                 {
+                                     SpaceId = Space.SpaceId,
+                                     IndexId = IndexId.Value,
+                                     Key = key.Key,
+                                     UpdateOperations = updateOperations
+                                 },
+                                 cancellationToken)
+                             .ConfigureAwait(false);
             return result;
         }
     }

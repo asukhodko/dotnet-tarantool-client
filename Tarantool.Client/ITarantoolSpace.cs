@@ -2,8 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using MsgPack;
-
 using Tarantool.Client.Models;
 
 namespace Tarantool.Client
@@ -20,36 +18,31 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" />.</returns>
         Task EnsureHaveSpaceIdAsync(CancellationToken cancellationToken);
 
-        Task<Index> FindIndexByNameAsync(
-            string indexName,
-            CancellationToken cancellationToken = default(CancellationToken));
-
+        /// <summary>Return an instance of the <see cref="ITarantoolIndex{T, TKey}" /> interface by index id.</summary>
+        /// <param name="indexId">The index id.</param>
+        /// <typeparam name="TKey">The <see cref="IndexKey" /> type.</typeparam>
+        /// <returns>The <see cref="ITarantoolIndex{T, TKey}" />.</returns>
         ITarantoolIndex<T, TKey> GetIndex<TKey>(uint indexId)
             where TKey : IndexKey;
 
+        /// <summary>Return an instance of the <see cref="ITarantoolIndex{T, TKey}" /> interface by index name.</summary>
+        /// <param name="indexName">The index name.</param>
+        /// <typeparam name="TKey">The <see cref="IndexKey" /> type.</typeparam>
+        /// <returns>The <see cref="ITarantoolIndex{T, TKey}" />.</returns>
         ITarantoolIndex<T, TKey> GetIndex<TKey>(string indexName)
             where TKey : IndexKey;
 
+        /// <summary>Inserts entity into space.</summary>
+        /// <param name="entity">The entity for insert.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
         Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>Replaces entity in space.</summary>
+        /// <param name="entity">The entity for replace.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
         Task<IList<T>> ReplaceAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<IList<T>> UpdateAsync(
-            IEnumerable<object> key,
-            IEnumerable<UpdateOperation> updateOperations,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<IList<T>> UpdateAsync(
-            uint indexId,
-            IEnumerable<object> key,
-            IEnumerable<UpdateOperation> updateOperations,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<IList<T>> UpdateAsync(
-            string indexName,
-            IEnumerable<object> key,
-            IEnumerable<UpdateOperation> updateOperations,
-            CancellationToken cancellationToken = default(CancellationToken));
 
         Task UpsertAsync(
             T entity,
