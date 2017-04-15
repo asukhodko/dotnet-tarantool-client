@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 
@@ -25,50 +26,64 @@ namespace Tarantool.Client
             _indexName = indexName;
         }
 
-        private ITarantoolSpace<T> Space { get; }
         public uint? IndexId { get; private set; }
+
+        private ITarantoolSpace<T> Space { get; }
+
         private ITarantoolClient TarantoolClient { get; }
-
-        protected async Task<IList<T>> SelectAsync(IEnumerable<object> key, Iterator iterator, uint offset,
-            uint limit, CancellationToken cancellationToken)
-        {
-            await EnsureHaveIndexIdAsync(cancellationToken);
-            Debug.Assert(IndexId != null);
-            var result = await TarantoolClient.SelectAsync<T>(new SelectRequest
-            {
-                SpaceId = Space.SpaceId,
-                IndexId = IndexId.Value,
-                Key = key,
-                Iterator = iterator,
-                Offset = offset,
-                Limit = limit
-            }, cancellationToken);
-            return result;
-        }
-
-        public async Task<IList<T>> SelectAsync(Iterator iterator, uint offset,
-            uint limit, CancellationToken cancellationToken)
-        {
-            await EnsureHaveIndexIdAsync(cancellationToken);
-            Debug.Assert(IndexId != null);
-            var result = await TarantoolClient.SelectAsync<T>(new SelectRequest
-            {
-                SpaceId = Space.SpaceId,
-                IndexId = IndexId.Value,
-                Iterator = iterator,
-                Offset = offset,
-                Limit = limit
-            }, cancellationToken);
-            return result;
-        }
 
         public async Task EnsureHaveIndexIdAsync(CancellationToken cancellationToken)
         {
-            await Space.EnsureHaveSpaceIdAsync(cancellationToken);
-            if (IndexId != null)
-                return;
-            IndexId = (await TarantoolClient.FindIndexByNameAsync(Space.SpaceId, _indexName, cancellationToken))
-                .IndexId;
+            await Space.EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
+            if (IndexId != null) return;
+            IndexId = (await TarantoolClient.FindIndexByNameAsync(Space.SpaceId, _indexName, cancellationToken)
+                           .ConfigureAwait(false)).IndexId;
+        }
+
+        public async Task<IList<T>> SelectAsync(
+            Iterator iterator,
+            uint offset,
+            uint limit,
+            CancellationToken cancellationToken)
+        {
+            await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
+            Debug.Assert(IndexId != null);
+            var result = await TarantoolClient.SelectAsync<T>(
+                                 new SelectRequest
+                                 {
+                                     SpaceId = Space.SpaceId,
+                                     IndexId = IndexId.Value,
+                                     Iterator = iterator,
+                                     Offset = offset,
+                                     Limit = limit
+                                 },
+                                 cancellationToken)
+                             .ConfigureAwait(false);
+            return result;
+        }
+
+        protected async Task<IList<T>> SelectAsync(
+            IEnumerable<object> key,
+            Iterator iterator,
+            uint offset,
+            uint limit,
+            CancellationToken cancellationToken)
+        {
+            await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
+            Debug.Assert(IndexId != null);
+            var result = await TarantoolClient.SelectAsync<T>(
+                                 new SelectRequest
+                                 {
+                                     SpaceId = Space.SpaceId,
+                                     IndexId = IndexId.Value,
+                                     Key = key,
+                                     Iterator = iterator,
+                                     Offset = offset,
+                                     Limit = limit
+                                 },
+                                 cancellationToken)
+                             .ConfigureAwait(false);
+            return result;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Tarantool.Client.Models;
 
 namespace Tarantool.Client
@@ -8,9 +9,11 @@ namespace Tarantool.Client
     public interface ITarantoolIndex<T, in TK>
     {
         uint? IndexId { get; }
+
         Task EnsureHaveIndexIdAsync(CancellationToken cancellationToken);
+
         /// <summary>
-        /// Select from space by key
+        ///     Select from space by key
         /// </summary>
         Task<IList<T>> SelectAsync(
             TK key,
@@ -20,7 +23,7 @@ namespace Tarantool.Client
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Select all records from space
+        ///     Select all records from space
         /// </summary>
         Task<IList<T>> SelectAsync(
             Iterator iterator = Iterator.All,
