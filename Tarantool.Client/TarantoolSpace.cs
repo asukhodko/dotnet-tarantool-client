@@ -88,15 +88,21 @@ namespace Tarantool.Client
             return result;
         }
 
+        /// <summary>Searches entity by primary key and updates it if found or inserts it if not found.</summary>
+        /// <param name="entity">The entity for replace.</param>
+        /// <param name="updateOperations">The update operations list.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> for awaiting completion.</returns>
         public async Task UpsertAsync(
             T entity,
             IEnumerable<UpdateOperation> updateOperations,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceIdAsync(cancellationToken);
+            await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
             await TarantoolClient.UpsertAsync(
-                new UpsertRequest<T> { SpaceId = SpaceId, Tuple = entity, UpdateOperations = updateOperations },
-                cancellationToken);
+                    new UpsertRequest<T> { SpaceId = SpaceId, Tuple = entity, UpdateOperations = updateOperations },
+                    cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }
