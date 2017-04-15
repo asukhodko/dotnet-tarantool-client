@@ -28,9 +28,7 @@ namespace Tarantool.Client
             _connection.Acquire();
         }
 
-        /// <summary>
-        /// Marks connection as non-acquired.
-        /// </summary>
+        /// <summary>Marks connection as non-acquired.</summary>
         public void Dispose()
         {
             _connection.Release();

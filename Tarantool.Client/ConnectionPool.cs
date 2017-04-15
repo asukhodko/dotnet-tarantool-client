@@ -130,9 +130,7 @@ namespace Tarantool.Client
             CancellationToken cancellationToken)
         {
             await newConnection.ConnectAsync(cancellationToken).ConfigureAwait(false);
-            newConnection.WhenDisconnected.ConfigureAwait(false)
-                .GetAwaiter()
-                .OnCompleted(
+            newConnection.OnDisconnected(
                     () =>
                         {
                             lock (_connections)
