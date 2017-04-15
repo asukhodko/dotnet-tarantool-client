@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using MsgPack;
 using MsgPack.Serialization;
+
+using Tarantool.Client.Models;
+
 using Xunit;
 
 namespace Tarantool.Client
@@ -25,7 +28,7 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MessagePackObject>("test");
-            var testSpacePrimaryIndex = testSpace.GetIndex<uint>(0);
+            var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
             var result = await testSpacePrimaryIndex.SelectAsync();
 
@@ -42,9 +45,9 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MessagePackObject>("test");
-            var testSpacePrimaryIndex = testSpace.GetIndex<uint>(0);
+            var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
-            var result = await testSpacePrimaryIndex.SelectAsync(1);
+            var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(1));
 
             Assert.Equal(1, result.Count);
             Assert.Equal(new[] { "1", "Roxette" }, result[0].AsList().Select(x => x.ToObject().ToString()).ToArray());
@@ -55,9 +58,9 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MessagePackObject>("test");
-            var testSpacePrimaryIndex = testSpace.GetIndex<uint>(0);
+            var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
-            var result = await testSpacePrimaryIndex.SelectAsync(3);
+            var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(3));
 
             Assert.Equal(1, result.Count);
             Assert.Equal(new[] { "3", "Ace of Base", "1993" },
@@ -69,9 +72,9 @@ namespace Tarantool.Client
         {
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
-            var testSpacePrimaryIndex = testSpace.GetIndex<uint>(0);
+            var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
-            var result = await testSpacePrimaryIndex.SelectAsync(1);
+            var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(1));
 
             Assert.Equal(1, result.Count);
             Assert.Equal(1u, result[0].MyTestEntityId);

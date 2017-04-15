@@ -8,28 +8,30 @@ using Tarantool.Client.Models.ClientMessages;
 
 namespace Tarantool.Client
 {
-    /// <summary>The base class to Tarantool space indexes.</summary>
+    /// <summary>The Tarantool space indexes accessor class.</summary>
     /// <typeparam name="T">The class for object mapping.</typeparam>
-    public abstract class TarantoolIndex<T> : ITarantoolIndex<T>
+    /// <typeparam name="TKey">The <see cref="IndexKey" /> type.</typeparam>
+    public class TarantoolIndex<T, TKey> : ITarantoolIndex<T, TKey>
+        where TKey : IndexKey
     {
         private readonly string _indexName;
 
-        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T}" /> class by indexId.</summary>
+        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T, TKey}" /> class by indexId.</summary>
         /// <param name="tarantoolClient">The tarantool client.</param>
         /// <param name="space">The space.</param>
         /// <param name="indexId">The index id.</param>
-        protected TarantoolIndex(ITarantoolClient tarantoolClient, ITarantoolSpace<T> space, uint indexId)
+        public TarantoolIndex(ITarantoolClient tarantoolClient, ITarantoolSpace<T> space, uint indexId)
         {
             TarantoolClient = tarantoolClient;
             Space = space;
             IndexId = indexId;
         }
 
-        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T}" /> class by indexName.</summary>
+        /// <summary>Initializes a new instance of the <see cref="TarantoolIndex{T, TKey}" /> class by indexName.</summary>
         /// <param name="tarantoolClient">The tarantool client.</param>
         /// <param name="space">The space.</param>
         /// <param name="indexName">The index name.</param>
-        protected TarantoolIndex(ITarantoolClient tarantoolClient, ITarantoolSpace<T> space, string indexName)
+        public TarantoolIndex(ITarantoolClient tarantoolClient, ITarantoolSpace<T> space, string indexName)
         {
             TarantoolClient = tarantoolClient;
             Space = space;
@@ -89,8 +91,8 @@ namespace Tarantool.Client
         /// <param name="limit">The limit.</param>
         /// <param name="cancellationToken">The cancellation Token.</param>
         /// <returns>The <see cref="Task" />.</returns>
-        protected async Task<IList<T>> SelectAsync(
-            IEnumerable<object> key,
+        public async Task<IList<T>> SelectAsync(
+            TKey key,
             Iterator iterator,
             uint offset,
             uint limit,
@@ -103,7 +105,7 @@ namespace Tarantool.Client
                                  {
                                      SpaceId = Space.SpaceId,
                                      IndexId = IndexId.Value,
-                                     Key = key,
+                                     Key = key.Key,
                                      Iterator = iterator,
                                      Offset = offset,
                                      Limit = limit

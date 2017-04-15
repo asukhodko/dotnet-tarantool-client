@@ -81,14 +81,14 @@ namespace Tarantool.Client
             return _indexes[indexName];
         }
 
-        public ITarantoolIndex<T, TK> GetIndex<TK>(uint indexId)
+        public ITarantoolIndex<T, TKey> GetIndex<TKey>(uint indexId) where TKey : IndexKey
         {
-            return new TarantoolIndex<T, TK>(TarantoolClient, this, indexId);
+            return new TarantoolIndex<T, TKey>(TarantoolClient, this, indexId);
         }
 
-        public ITarantoolIndex<T, TK> GetIndex<TK>(string indexName)
+        public ITarantoolIndex<T, TKey> GetIndex<TKey>(string indexName) where TKey : IndexKey
         {
-            return new TarantoolIndex<T, TK>(TarantoolClient, this, indexName);
+            return new TarantoolIndex<T, TKey>(TarantoolClient, this, indexName);
         }
 
         public async Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken)

@@ -32,9 +32,9 @@ namespace Tarantool.Client
             string indexName,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        ITarantoolIndex<T, TK> GetIndex<TK>(uint indexId);
+        ITarantoolIndex<T, TKey> GetIndex<TKey>(uint indexId) where TKey : IndexKey;
 
-        ITarantoolIndex<T, TK> GetIndex<TK>(string indexName);
+        ITarantoolIndex<T, TKey> GetIndex<TKey>(string indexName) where TKey : IndexKey;
 
         Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
 

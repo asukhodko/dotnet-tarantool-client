@@ -6,9 +6,10 @@ using Tarantool.Client.Models;
 
 namespace Tarantool.Client
 {
-    /// <summary>The base interface to Tarantool space indexes.</summary>
+    /// <summary>The interface to Tarantool space indexes.</summary>
     /// <typeparam name="T">The class for object mapping.</typeparam>
-    public interface ITarantoolIndex<T>
+    /// <typeparam name="TKey">The <see cref="IndexKey"/> type.</typeparam>
+    public interface ITarantoolIndex<T, in TKey> where TKey : IndexKey
     {
         /// <summary>Gets the index id. Return null if id not have yet (see <see cref="EnsureHaveIndexIdAsync" />).</summary>
         uint? IndexId { get; }
@@ -26,6 +27,20 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" />.</returns>
         Task<IList<T>> SelectAsync(
             Iterator iterator = Iterator.All,
+            uint offset = 0,
+            uint limit = int.MaxValue,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>Select from space by key</summary>
+        /// <param name="key">The key value.</param>
+        /// <param name="iterator">The iterator.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="cancellationToken">The cancellation Token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
+        Task<IList<T>> SelectAsync(
+            TKey key,
+            Iterator iterator = Iterator.Eq,
             uint offset = 0,
             uint limit = int.MaxValue,
             CancellationToken cancellationToken = default(CancellationToken));
