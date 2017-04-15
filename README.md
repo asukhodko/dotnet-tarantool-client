@@ -25,7 +25,7 @@ Create TarantoolClient instance:
 var tarantoolClient = TarantoolClient.Create("tarantool://user:pass@tarantool-host:3301");
 ```
 
-### Defining a model
+### Defining the model
 ```C#
 public class MyTestEntity
 {
@@ -39,19 +39,21 @@ public class MyTestEntity
     public int SomeIntField { get; set; }
 }
 ```
-### Map space with model
+### Map space and indexes with model
 ```C#
 var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
+var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>("primary");
 ```
 
 ### Select by key
 ```C#
-var result = await testSpace.SelectAsync(new object[] { 3 }); // where primary indexed key = 3
+var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(3)); // where primary indexed key = 3
 ```
 
 ### Select from secondary index by key
 ```C#
-var result = await testSpace.SelectAsync("secondaryIndexName", new object[] { "some value" });
+var testSpaceSecondaryIndex = testSpace.GetIndex<IndexKey<string>>("secondaryIndexName");
+var result = await testSpaceSecondaryIndex.SelectAsync(new IndexKey<string>("some value"));
 ```
 
 ### Insert
@@ -66,8 +68,8 @@ await testSpace.InsertAsync(new MyTestEntity
 
 ### Update
 ```C#
-await testSpace.UpdateAsync(
-    new List<object> { 166u }, // key
+await testSpacePrimaryIndex.UpdateAsync(
+    new IndexKey<uint>(166), // key
     new[] // update operations array
     {
         new UpdateOperation<int>
@@ -81,7 +83,7 @@ await testSpace.UpdateAsync(
 
 ### Delete
 ```C#
-await testSpace.DeleteAsync(new List<object> { 166u });
+await testSpacePrimaryIndex.DeleteAsync(new IndexKey<uint>(166));
 ```
 
 ### Replace

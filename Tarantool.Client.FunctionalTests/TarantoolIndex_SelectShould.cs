@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Tarantool.Client
 {
-    public class TarantoolSpace_SelectShould
+    public class TarantoolIndex_SelectShould
     {
         public class MyTestEntity
         {

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Tarantool.Client
 {
-    public class TarantoolSpace_UpdateShould
+    public class TarantoolIndex_UpdateShould
     {
         public class MyTestEntity
         {
