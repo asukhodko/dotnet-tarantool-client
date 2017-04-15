@@ -66,17 +66,13 @@ namespace Tarantool.Client
             string spaceName,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <summary>
-        ///     Constructs an <see cref="ITarantoolSpace{T}" /> for working with ORM.
-        /// </summary>
+        /// <summary>Constructs an <see cref="ITarantoolSpace{T}" /> for working with ORM.</summary>
         /// <param name="spaceId">The space id.</param>
         /// <typeparam name="T">The class for object mapping.</typeparam>
         /// <returns>The <see cref="ITarantoolSpace{T}" />.</returns>
         ITarantoolSpace<T> GetSpace<T>(uint spaceId);
 
-        /// <summary>
-        ///     Constructs an <see cref="ITarantoolSpace{T}" /> for working with ORM.
-        /// </summary>
+        /// <summary>Constructs an <see cref="ITarantoolSpace{T}" /> for working with ORM.</summary>
         /// <param name="spaceName">The space name.</param>
         /// <typeparam name="T">The class for object mapping.</typeparam>
         /// <returns>The <see cref="ITarantoolSpace{T}" />.</returns>
