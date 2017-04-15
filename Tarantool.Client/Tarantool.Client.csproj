@@ -10,9 +10,9 @@
     <PackageLicenseUrl>https://raw.githubusercontent.com/asukhodko/dotnet-tarantool-client/master/LICENSE.md</PackageLicenseUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>TarantoolClient</PackageId>
-    <AssemblyVersion>2.0.0.2</AssemblyVersion>
-    <FileVersion>2.0.0.2</FileVersion>
-    <Version>2.0.0-rc2</Version>
+    <AssemblyVersion>2.0.0.3</AssemblyVersion>
+    <FileVersion>2.0.0.3</FileVersion>
+    <Version>2.0.1-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
