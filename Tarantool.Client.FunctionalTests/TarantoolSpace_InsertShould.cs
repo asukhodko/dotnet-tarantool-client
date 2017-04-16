@@ -24,6 +24,14 @@ namespace Tarantool.Client
 
             [MessagePackMember(3)]
             public DateTime SomeDateTimeField { get; set; }
+
+            [MessagePackMember(4)]
+            [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.Native)]
+            public DateTime SomeDateTimeFieldN { get; set; }
+
+            [MessagePackMember(5)]
+            [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.UnixEpoc)]
+            public DateTime SomeDateTimeFieldU { get; set; }
         }
 
         [Fact]
@@ -42,7 +50,9 @@ namespace Tarantool.Client
                     MyTestEntityId = 598,
                     SomeStringField = "Some name",
                     SomeIntField = 1900,
-                    SomeDateTimeField = now
+                    SomeDateTimeField = now,
+                    SomeDateTimeFieldN = now,
+                    SomeDateTimeFieldU = now
                 });
 
                 Assert.Equal(1, result.Count);
@@ -50,6 +60,8 @@ namespace Tarantool.Client
                 Assert.Equal("Some name", result[0].SomeStringField);
                 Assert.Equal(1900, result[0].SomeIntField);
                 Assert.Equal(now, result[0].SomeDateTimeField);
+                Assert.Equal(now, result[0].SomeDateTimeFieldN);
+                Assert.Equal((now - result[0].SomeDateTimeFieldU).TotalSeconds, 0, 2);
             }
             finally
             {

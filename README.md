@@ -39,6 +39,7 @@ public class MyTestEntity
     public int SomeIntField { get; set; }
 
     [MessagePackMember(3)]
+    [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.UnixEpoc)]
     public DateTime SomeDateTimeField { get; set; }
 }
 ```
