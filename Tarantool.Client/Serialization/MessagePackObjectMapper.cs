@@ -44,6 +44,8 @@ namespace Tarantool.Client.Serialization
                 return source.AsInt16();
             if (targetType == typeof(ushort))
                 return source.AsUInt16();
+            if (targetType == typeof(DateTime))
+                return DateTime.FromBinary(source.AsInt64());
             if (targetType == typeof(IList<MessagePackObject>))
                 return source.AsList();
             if (targetType == typeof(IEnumerable<MessagePackObject>))

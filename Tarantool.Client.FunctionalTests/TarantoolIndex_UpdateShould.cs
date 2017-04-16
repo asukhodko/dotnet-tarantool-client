@@ -5,6 +5,7 @@ using MsgPack.Serialization;
 using Tarantool.Client.Models;
 using Tarantool.Client.Models.ClientMessages;
 using Xunit;
+using System;
 
 namespace Tarantool.Client
 {
@@ -20,6 +21,9 @@ namespace Tarantool.Client
 
             [MessagePackMember(2)]
             public int SomeIntField { get; set; }
+
+            [MessagePackMember(3)]
+            public DateTime SomeDateTimeField { get; set; }
         }
 
         [Fact]
