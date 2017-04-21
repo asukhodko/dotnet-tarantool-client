@@ -43,7 +43,7 @@ namespace Tarantool.Client.Serialization
                                      || targetType.GetGenericTypeDefinition() == typeof(IList<>)))
                 return MapList(targetType, source.AsList());
 
-            if (ti.IsClass && source.IsList) return MapClass(targetType, source);
+            if (ti.IsClass && (source.IsList || source.IsNil)) return MapClass(targetType, source);
 
             if (ti.IsClass && source.IsMap) return MapDictionary(targetType, source.AsDictionary());
 
@@ -55,6 +55,7 @@ namespace Tarantool.Client.Serialization
 
         private static object MapClass(Type targetType, MessagePackObject source)
         {
+            if (source.IsNil) return null;
             var sourceFields = source.AsList();
             var target = Activator.CreateInstance(targetType);
             foreach (var property in targetType.GetRuntimeProperties())
