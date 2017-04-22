@@ -34,21 +34,14 @@ namespace Tarantool.Client
             try
             {
                 await testSpace.UpsertAsync(
-                    new MyTestEntity
-                    {
-                        MyTestEntityId = 555,
-                        SomeStringField = "Some name",
-                        SomeIntField = 1550
-                    },
-                    new[]
-                    {
-                        new UpdateOperation<int>
-                        {
-                            Operation = UpdateOperationCode.Assign,
-                            FieldNo = 2,
-                            Argument = 1555
-                        }
-                    });
+                    new MyTestEntity { MyTestEntityId = 555, SomeStringField = "Some name", SomeIntField = 1550 },
+                    new UpdateDefinition<MyTestEntity>().AddOpertation(
+                        new UpdateOperation<MyTestEntity, int>(x => x.SomeIntField)
+                            {
+                                Operation =
+                                    UpdateOperationCode.Assign,
+                                Argument = 1555
+                            }));
 
                 var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(555));
                 Assert.Equal(1, result.Count);
@@ -85,15 +78,13 @@ namespace Tarantool.Client
                         SomeStringField = "Some name",
                         SomeIntField = 1440
                     },
-                    new[]
-                    {
-                        new UpdateOperation<int>
+                    new UpdateDefinition<MyTestEntity>().AddOpertation(
+                        new UpdateOperation<MyTestEntity, int>(x => x.SomeIntField)
                         {
                             Operation = UpdateOperationCode.Assign,
-                            FieldNo = 2,
                             Argument = 1444
                         }
-                    });
+                    ));
 
                 var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(544));
                 Assert.Equal(1, result.Count);

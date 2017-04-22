@@ -46,12 +46,12 @@ namespace Tarantool.Client
 
         /// <summary>Searches entity by primary key and updates it if found or inserts it if not found.</summary>
         /// <param name="entity">The entity for replace.</param>
-        /// <param name="updateOperations">The update operations list.</param>
+        /// <param name="updateDefinition">The update operations list.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> for awaiting completion.</returns>
         Task UpsertAsync(
             T entity,
-            IEnumerable<UpdateOperation> updateOperations,
+            UpdateDefinition<T> updateDefinition,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

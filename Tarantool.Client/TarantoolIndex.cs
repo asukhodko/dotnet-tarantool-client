@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -132,12 +134,12 @@ namespace Tarantool.Client
 
         /// <summary>Performs an updates in space.</summary>
         /// <param name="key">The key.</param>
-        /// <param name="updateOperations">The update operations list.</param>
+        /// <param name="updateDefinition">The update operations list.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
         public async Task<IList<T>> UpdateAsync(
             TKey key,
-            IEnumerable<UpdateOperation> updateOperations,
+            UpdateDefinition<T> updateDefinition,
             CancellationToken cancellationToken)
         {
             await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
@@ -148,7 +150,7 @@ namespace Tarantool.Client
                                      SpaceId = Space.SpaceId,
                                      IndexId = IndexId.Value,
                                      Key = key.Key,
-                                     UpdateOperations = updateOperations
+                                     UpdateOperations = updateDefinition.UpdateOperations
                                  },
                                  cancellationToken)
                              .ConfigureAwait(false);

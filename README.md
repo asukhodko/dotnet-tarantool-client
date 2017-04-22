@@ -74,15 +74,13 @@ await testSpace.InsertAsync(new MyTestEntity
 ```C#
 await testSpacePrimaryIndex.UpdateAsync(
     new IndexKey<uint>(166), // key
-    new[] // update operations array
-    {
-        new UpdateOperation<int>
+    new UpdateDefinition<MyTestEntity>()
+    .AddOpertation(new UpdateOperation<MyTestEntity, int>(x => x.SomeIntField)
         {
             Operation = UpdateOperationCode.Assign,
-            FieldNo = 2,
             Argument = 1666
         }
-    });
+    ));
 ```
 
 ### Delete
@@ -109,15 +107,13 @@ await testSpace.UpsertAsync(
         SomeStringField = "Some name",
         SomeIntField = 1440
     },
-    new[]
-    {
-        new UpdateOperation<int>
+    new UpdateDefinition<MyTestEntity>()
+    .AddOpertation(new UpdateOperation<MyTestEntity, int>(x => x.SomeIntField)
         {
             Operation = UpdateOperationCode.Assign,
-            FieldNo = 2,
             Argument = 1444
         }
-    });
+    ));
 ```
 
 Core Tarantool operations
