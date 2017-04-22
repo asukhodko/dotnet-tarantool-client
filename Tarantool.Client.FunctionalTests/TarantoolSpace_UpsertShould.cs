@@ -36,12 +36,9 @@ namespace Tarantool.Client
                 await testSpace.UpsertAsync(
                     new MyTestEntity { MyTestEntityId = 555, SomeStringField = "Some name", SomeIntField = 1550 },
                     new UpdateDefinition<MyTestEntity>().AddOpertation(
-                        new UpdateOperation<MyTestEntity, int>(x => x.SomeIntField)
-                            {
-                                Operation =
-                                    UpdateOperationCode.Assign,
-                                Argument = 1555
-                            }));
+                        x => x.SomeIntField,
+                        UpdateOperationCode.Assign,
+                        1555));
 
                 var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(555));
                 Assert.Equal(1, result.Count);
@@ -72,19 +69,11 @@ namespace Tarantool.Client
                 });
 
                 await testSpace.UpsertAsync(
-                    new MyTestEntity
-                    {
-                        MyTestEntityId = 544,
-                        SomeStringField = "Some name",
-                        SomeIntField = 1440
-                    },
+                    new MyTestEntity { MyTestEntityId = 544, SomeStringField = "Some name", SomeIntField = 1440 },
                     new UpdateDefinition<MyTestEntity>().AddOpertation(
-                        new UpdateOperation<MyTestEntity, int>(x => x.SomeIntField)
-                        {
-                            Operation = UpdateOperationCode.Assign,
-                            Argument = 1444
-                        }
-                    ));
+                        x => x.SomeIntField,
+                        UpdateOperationCode.Assign,
+                        1444));
 
                 var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(544));
                 Assert.Equal(1, result.Count);
