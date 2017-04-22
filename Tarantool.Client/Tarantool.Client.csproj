@@ -12,7 +12,7 @@
     <PackageId>TarantoolClient</PackageId>
     <AssemblyVersion>2.0.4.0</AssemblyVersion>
     <FileVersion>2.0.4.0</FileVersion>
-    <Version>2.0.4-dbg2</Version>
+    <Version>2.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
