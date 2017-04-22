@@ -37,6 +37,10 @@ public class MyTestEntity
 
     [MessagePackMember(2)]
     public int SomeIntField { get; set; }
+
+    [MessagePackMember(3)]
+    [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.UnixEpoc)]
+    public DateTime SomeDateTimeField { get; set; }
 }
 ```
 ### Map space and indexes with model
@@ -70,15 +74,11 @@ await testSpace.InsertAsync(new MyTestEntity
 ```C#
 await testSpacePrimaryIndex.UpdateAsync(
     new IndexKey<uint>(166), // key
-    new[] // update operations array
-    {
-        new UpdateOperation<int>
-        {
-            Operation = UpdateOperationCode.Assign,
-            FieldNo = 2,
-            Argument = 1666
-        }
-    });
+    new UpdateDefinition<MyTestEntity>()
+    .AddOpertation(
+        x => x.SomeIntField,
+        UpdateOperationCode.Assign,
+        1666));
 ```
 
 ### Delete
@@ -105,15 +105,11 @@ await testSpace.UpsertAsync(
         SomeStringField = "Some name",
         SomeIntField = 1440
     },
-    new[]
-    {
-        new UpdateOperation<int>
-        {
-            Operation = UpdateOperationCode.Assign,
-            FieldNo = 2,
-            Argument = 1444
-        }
-    });
+    new UpdateDefinition<MyTestEntity>()
+    .AddOpertation(
+        x => x.SomeIntField,
+        UpdateOperationCode.Assign,
+        1444));
 ```
 
 Core Tarantool operations

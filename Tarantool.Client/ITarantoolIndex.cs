@@ -54,12 +54,12 @@ namespace Tarantool.Client
 
         /// <summary>Performs an updates in space.</summary>
         /// <param name="key">The key.</param>
-        /// <param name="updateOperations">The update operations list.</param>
+        /// <param name="updateDefinition">The update operations list.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
         Task<IList<T>> UpdateAsync(
             TKey key,
-            IEnumerable<UpdateOperation> updateOperations,
+            UpdateDefinition<T> updateDefinition,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

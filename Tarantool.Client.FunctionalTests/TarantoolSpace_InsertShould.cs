@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MsgPack.Serialization;
 
@@ -20,6 +21,17 @@ namespace Tarantool.Client
 
             [MessagePackMember(2)]
             public int SomeIntField { get; set; }
+
+            [MessagePackMember(3)]
+            public DateTime SomeDateTimeField { get; set; }
+
+            [MessagePackMember(4)]
+            [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.Native)]
+            public DateTime SomeDateTimeFieldN { get; set; }
+
+            [MessagePackMember(5)]
+            [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.UnixEpoc)]
+            public DateTime SomeDateTimeFieldU { get; set; }
         }
 
         [Fact]
@@ -29,6 +41,7 @@ namespace Tarantool.Client
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
             var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
             await testSpacePrimaryIndex.DeleteAsync(new IndexKey<uint>(598));
+            var now = DateTime.UtcNow;
 
             try
             {
@@ -36,13 +49,19 @@ namespace Tarantool.Client
                 {
                     MyTestEntityId = 598,
                     SomeStringField = "Some name",
-                    SomeIntField = 1900
+                    SomeIntField = 1900,
+                    SomeDateTimeField = now,
+                    SomeDateTimeFieldN = now,
+                    SomeDateTimeFieldU = now
                 });
 
                 Assert.Equal(1, result.Count);
                 Assert.Equal(598u, result[0].MyTestEntityId);
                 Assert.Equal("Some name", result[0].SomeStringField);
                 Assert.Equal(1900, result[0].SomeIntField);
+                Assert.Equal(now, result[0].SomeDateTimeField);
+                Assert.Equal(now, result[0].SomeDateTimeFieldN);
+                Assert.Equal((now - result[0].SomeDateTimeFieldU).TotalSeconds, 0, 2);
             }
             finally
             {

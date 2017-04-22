@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MsgPack.Serialization;
 using Tarantool.Client.Models;
@@ -18,6 +19,9 @@ namespace Tarantool.Client
 
             [MessagePackMember(2)]
             public int SomeIntField { get; set; }
+
+            [MessagePackMember(3)]
+            public DateTime SomeDateTimeField { get; set; }
         }
 
         [Fact]
@@ -30,21 +34,11 @@ namespace Tarantool.Client
             try
             {
                 await testSpace.UpsertAsync(
-                    new MyTestEntity
-                    {
-                        MyTestEntityId = 555,
-                        SomeStringField = "Some name",
-                        SomeIntField = 1550
-                    },
-                    new[]
-                    {
-                        new UpdateOperation<int>
-                        {
-                            Operation = UpdateOperationCode.Assign,
-                            FieldNo = 2,
-                            Argument = 1555
-                        }
-                    });
+                    new MyTestEntity { MyTestEntityId = 555, SomeStringField = "Some name", SomeIntField = 1550 },
+                    new UpdateDefinition<MyTestEntity>().AddOpertation(
+                        x => x.SomeIntField,
+                        UpdateOperationCode.Assign,
+                        1555));
 
                 var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(555));
                 Assert.Equal(1, result.Count);
@@ -75,21 +69,11 @@ namespace Tarantool.Client
                 });
 
                 await testSpace.UpsertAsync(
-                    new MyTestEntity
-                    {
-                        MyTestEntityId = 544,
-                        SomeStringField = "Some name",
-                        SomeIntField = 1440
-                    },
-                    new[]
-                    {
-                        new UpdateOperation<int>
-                        {
-                            Operation = UpdateOperationCode.Assign,
-                            FieldNo = 2,
-                            Argument = 1444
-                        }
-                    });
+                    new MyTestEntity { MyTestEntityId = 544, SomeStringField = "Some name", SomeIntField = 1440 },
+                    new UpdateDefinition<MyTestEntity>().AddOpertation(
+                        x => x.SomeIntField,
+                        UpdateOperationCode.Assign,
+                        1444));
 
                 var result = await testSpacePrimaryIndex.SelectAsync(new IndexKey<uint>(544));
                 Assert.Equal(1, result.Count);

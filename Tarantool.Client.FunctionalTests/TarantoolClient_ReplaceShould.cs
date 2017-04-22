@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MsgPack.Serialization;
@@ -53,6 +54,9 @@ namespace Tarantool.Client
 
             [MessagePackMember(2)]
             public int SomeIntField { get; set; }
+
+            [MessagePackMember(3)]
+            public DateTime SomeDateTimeField { get; set; }
         }
 
         [Fact]
