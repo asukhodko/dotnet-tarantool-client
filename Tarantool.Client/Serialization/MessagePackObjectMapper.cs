@@ -86,7 +86,7 @@ namespace Tarantool.Client.Serialization
             switch (conversionMethod)
             {
                 case DateTimeMemberConversionMethod.UnixEpoc:
-                    var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+                    var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                     return epoch.AddMilliseconds(source.AsInt64());
                 default:
                     return DateTime.FromBinary(source.AsInt64());

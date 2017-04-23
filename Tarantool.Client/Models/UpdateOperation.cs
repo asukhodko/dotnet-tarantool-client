@@ -37,6 +37,11 @@ namespace Tarantool.Client.Models
                 packer.Pack(Offset);
             }
 
+            PackArgumentToMessage(packer);
+        }
+
+        protected virtual void PackArgumentToMessage(Packer packer)
+        {
             packer.Pack(Argument);
         }
     }
@@ -44,13 +49,41 @@ namespace Tarantool.Client.Models
 
     public class UpdateOperation<T, TField> : UpdateOperation<TField>
     {
+        private readonly MemberInfo _property;
+
         public UpdateOperation(Expression<Func<T, TField>> field)
         {
             var body = field.Body as MemberExpression;
             if (body == null) throw new TarantoolException("Can only deal with properties, not methods.");
-            var attr = body.Member.GetCustomAttribute<MessagePackMemberAttribute>();
+            _property = body.Member;
+            var attr = _property.GetCustomAttribute<MessagePackMemberAttribute>();
             if (attr == null) throw new TarantoolException($"Cannot find MessagePackMemberAttribute for {field}.");
             FieldNo = (uint)attr.Id;
+        }
+
+        protected override void PackArgumentToMessage(Packer packer)
+        {
+            if (typeof(TField) == typeof(DateTime))
+            {
+                var date = (DateTime)(object)Argument;
+
+                var conversionMethod = _property?.GetCustomAttribute<MessagePackDateTimeMemberAttribute>()
+                    ?.DateTimeConversionMethod;
+                switch (conversionMethod)
+                {
+                    case DateTimeMemberConversionMethod.UnixEpoc:
+                        var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                        packer.Pack(Convert.ToInt64((date - epoch).TotalMilliseconds));
+                        break;
+                    default:
+                        packer.Pack(Argument);
+                        break;
+                }
+            }
+            else
+            {
+                packer.Pack(Argument);
+            }
         }
     }
 }
