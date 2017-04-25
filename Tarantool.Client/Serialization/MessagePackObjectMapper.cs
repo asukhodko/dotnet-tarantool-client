@@ -34,6 +34,7 @@ namespace Tarantool.Client.Serialization
             if (targetType == typeof(IList<MessagePackObject>)) return source.AsList();
             if (targetType == typeof(IEnumerable<MessagePackObject>)) return source.AsEnumerable();
             if (targetType == typeof(DateTime)) return MapDateTime(property, source);
+            if (targetType == typeof(DateTimeOffset)) return MapDateTimeOffset(property, source);
 
             if (targetType == typeof(MessagePackObject)) return source;
 
@@ -90,6 +91,8 @@ namespace Tarantool.Client.Serialization
             return target;
         }
 
+        private static readonly DateTime _unixEpocUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        
         private static object MapDateTime(PropertyInfo property, MessagePackObject source)
         {
             var conversionMethod = property?.GetCustomAttribute<MessagePackDateTimeMemberAttribute>()
@@ -97,10 +100,39 @@ namespace Tarantool.Client.Serialization
             switch (conversionMethod)
             {
                 case DateTimeMemberConversionMethod.UnixEpoc:
-                    var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                    return epoch.AddMilliseconds(source.AsInt64());
+                    return _unixEpocUtc.AddMilliseconds(source.AsInt64());
                 default:
                     return DateTime.FromBinary(source.AsInt64());
+            }
+        }
+
+        private static object MapDateTimeOffset(PropertyInfo property, MessagePackObject source)
+        {
+            var conversionMethod = property?.GetCustomAttribute<MessagePackDateTimeMemberAttribute>()
+                ?.DateTimeConversionMethod;
+            try
+            {
+                switch (conversionMethod)
+                {
+                    case DateTimeMemberConversionMethod.UnixEpoc:
+                        return new DateTimeOffset(_unixEpocUtc.AddMilliseconds(source.AsInt64()));
+                    default:
+                        if (source.IsArray)
+                        {
+                            var arr = source.AsList();
+                            return new DateTimeOffset(arr[0].AsInt64(), TimeSpan.FromMinutes(arr[1].AsInt32()));
+                        }
+                        else
+                        {
+                            return new DateTimeOffset(source.AsInt64(), TimeSpan.Zero);
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new MessagePackMapperException(
+                            $"Cannot map field [{property.Name}] from [{source}]. See inner exception for details.",
+                            ex);
             }
         }
 
