@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="MsgPack.Cli" Version="0.8.1" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

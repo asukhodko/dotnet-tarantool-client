@@ -35,9 +35,18 @@ namespace Tarantool.Client.Serialization
             if (targetType == typeof(IEnumerable<MessagePackObject>)) return source.AsEnumerable();
             if (targetType == typeof(DateTime)) return MapDateTime(property, source);
 
-            var ti = targetType.GetTypeInfo();
-
             if (targetType == typeof(MessagePackObject)) return source;
+
+            Type nullableUnderlyingType = Nullable.GetUnderlyingType(targetType);
+            if (nullableUnderlyingType != null)
+            {
+                if (source.IsNil)
+                    return null;
+                else
+                    return Map(nullableUnderlyingType, source, property);
+            }
+
+            var ti = targetType.GetTypeInfo();
 
             if (ti.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(List<>)
                                      || targetType.GetGenericTypeDefinition() == typeof(IList<>)))
@@ -45,11 +54,13 @@ namespace Tarantool.Client.Serialization
 
             if (ti.IsClass && (source.IsList || source.IsNil)) return MapClass(targetType, source);
 
-            if (ti.IsClass && source.IsMap) return MapDictionary(targetType, source.AsDictionary());
+            if (ti.IsGenericType && ti.GetGenericTypeDefinition() == typeof(Dictionary<,>) && source.IsMap) return MapDictionary(targetType, source.AsDictionary());
+
+            if (ti.IsClass && source.IsMap) return MapDictionaryToObject(targetType, source.AsDictionary());
 
             if (ti.IsEnum) return MapEnum(targetType, source);
 
-            throw new MessagePackMapperException(
+            throw new Exception(
                 $"Cannot find MsgPackObject converter for type {targetType.FullName}.");
         }
 
@@ -70,7 +81,7 @@ namespace Tarantool.Client.Serialization
                     }
                     catch (Exception ex)
                     {
-                        throw new MessagePackMapperException(
+                        throw new Exception(
                             $"Cannot map field [{property.Name}] from position [{attr.Id}]. See inner exception for details.",
                             ex);
                     }
@@ -96,6 +107,22 @@ namespace Tarantool.Client.Serialization
         private static object MapDictionary(Type targetType, MessagePackObjectDictionary source)
         {
             var target = Activator.CreateInstance(targetType);
+            Type keyType = targetType.GetGenericArguments()[0];
+            Type valueType = targetType.GetGenericArguments()[1];
+            MethodInfo addMI = targetType.GetMethod("Add", new[] { keyType, valueType });
+            foreach (var pair in source)
+            {
+                var targetKey = Map(keyType, pair.Key);
+                var targetValue = Map(valueType, pair.Value);
+                addMI.Invoke(target, new[] { targetKey, targetValue });
+            }
+
+            return target;
+        }
+
+        private static object MapDictionaryToObject(Type targetType, MessagePackObjectDictionary source)
+        {
+            var target = Activator.CreateInstance(targetType);
             var props = targetType.GetRuntimeProperties().ToList();
             foreach (var pair in source)
             {
@@ -119,7 +146,7 @@ namespace Tarantool.Client.Serialization
                 return Enum.Parse(targetType, strVal, true);
             }
 
-            throw new MessagePackMapperException($"Cannot map value to enum {targetType.FullName}.");
+            throw new Exception($"Cannot map value to enum {targetType.FullName}.");
         }
 
         private static object MapList(Type targetType, IList<MessagePackObject> source)
