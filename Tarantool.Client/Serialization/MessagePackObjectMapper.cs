@@ -60,7 +60,7 @@ namespace Tarantool.Client.Serialization
 
             if (ti.IsEnum) return MapEnum(targetType, source);
 
-            throw new Exception(
+            throw new MessagePackMapperException(
                 $"Cannot find MsgPackObject converter for type {targetType.FullName}.");
         }
 
@@ -81,7 +81,7 @@ namespace Tarantool.Client.Serialization
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception(
+                        throw new MessagePackMapperException(
                             $"Cannot map field [{property.Name}] from position [{attr.Id}]. See inner exception for details.",
                             ex);
                     }
@@ -146,7 +146,7 @@ namespace Tarantool.Client.Serialization
                 return Enum.Parse(targetType, strVal, true);
             }
 
-            throw new Exception($"Cannot map value to enum {targetType.FullName}.");
+            throw new MessagePackMapperException($"Cannot map value to enum {targetType.FullName}.");
         }
 
         private static object MapList(Type targetType, IList<MessagePackObject> source)
