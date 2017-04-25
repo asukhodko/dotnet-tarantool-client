@@ -34,10 +34,20 @@ namespace Tarantool.Client.Serialization
             if (targetType == typeof(IList<MessagePackObject>)) return source.AsList();
             if (targetType == typeof(IEnumerable<MessagePackObject>)) return source.AsEnumerable();
             if (targetType == typeof(DateTime)) return MapDateTime(property, source);
-
-            var ti = targetType.GetTypeInfo();
+            if (targetType == typeof(DateTimeOffset)) return MapDateTimeOffset(property, source);
 
             if (targetType == typeof(MessagePackObject)) return source;
+
+            Type nullableUnderlyingType = Nullable.GetUnderlyingType(targetType);
+            if (nullableUnderlyingType != null)
+            {
+                if (source.IsNil)
+                    return null;
+                else
+                    return Map(nullableUnderlyingType, source, property);
+            }
+
+            var ti = targetType.GetTypeInfo();
 
             if (ti.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(List<>)
                                      || targetType.GetGenericTypeDefinition() == typeof(IList<>)))
@@ -45,7 +55,9 @@ namespace Tarantool.Client.Serialization
 
             if (ti.IsClass && (source.IsList || source.IsNil)) return MapClass(targetType, source);
 
-            if (ti.IsClass && source.IsMap) return MapDictionary(targetType, source.AsDictionary());
+            if (ti.IsGenericType && ti.GetGenericTypeDefinition() == typeof(Dictionary<,>) && source.IsMap) return MapDictionary(targetType, source.AsDictionary());
+
+            if (ti.IsClass && source.IsMap) return MapDictionaryToObject(targetType, source.AsDictionary());
 
             if (ti.IsEnum) return MapEnum(targetType, source);
 
@@ -79,6 +91,8 @@ namespace Tarantool.Client.Serialization
             return target;
         }
 
+        private static readonly DateTime _unixEpocUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        
         private static object MapDateTime(PropertyInfo property, MessagePackObject source)
         {
             var conversionMethod = property?.GetCustomAttribute<MessagePackDateTimeMemberAttribute>()
@@ -86,14 +100,59 @@ namespace Tarantool.Client.Serialization
             switch (conversionMethod)
             {
                 case DateTimeMemberConversionMethod.UnixEpoc:
-                    var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                    return epoch.AddMilliseconds(source.AsInt64());
+                    return _unixEpocUtc.AddMilliseconds(source.AsInt64());
                 default:
                     return DateTime.FromBinary(source.AsInt64());
             }
         }
 
+        private static object MapDateTimeOffset(PropertyInfo property, MessagePackObject source)
+        {
+            var conversionMethod = property?.GetCustomAttribute<MessagePackDateTimeMemberAttribute>()
+                ?.DateTimeConversionMethod;
+            try
+            {
+                switch (conversionMethod)
+                {
+                    case DateTimeMemberConversionMethod.UnixEpoc:
+                        return new DateTimeOffset(_unixEpocUtc.AddMilliseconds(source.AsInt64()));
+                    default:
+                        if (source.IsArray)
+                        {
+                            var arr = source.AsList();
+                            return new DateTimeOffset(arr[0].AsInt64(), TimeSpan.FromMinutes(arr[1].AsInt32()));
+                        }
+                        else
+                        {
+                            return new DateTimeOffset(source.AsInt64(), TimeSpan.Zero);
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new MessagePackMapperException(
+                            $"Cannot map field [{property.Name}] from [{source}]. See inner exception for details.",
+                            ex);
+            }
+        }
+
         private static object MapDictionary(Type targetType, MessagePackObjectDictionary source)
+        {
+            var target = Activator.CreateInstance(targetType);
+            Type keyType = targetType.GetGenericArguments()[0];
+            Type valueType = targetType.GetGenericArguments()[1];
+            MethodInfo addMI = targetType.GetMethod("Add", new[] { keyType, valueType });
+            foreach (var pair in source)
+            {
+                var targetKey = Map(keyType, pair.Key);
+                var targetValue = Map(valueType, pair.Value);
+                addMI.Invoke(target, new[] { targetKey, targetValue });
+            }
+
+            return target;
+        }
+
+        private static object MapDictionaryToObject(Type targetType, MessagePackObjectDictionary source)
         {
             var target = Activator.CreateInstance(targetType);
             var props = targetType.GetRuntimeProperties().ToList();
