@@ -32,6 +32,12 @@ namespace Tarantool.Client
             [MessagePackMember(5)]
             [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.UnixEpoc)]
             public DateTime SomeDateTimeFieldU { get; set; }
+
+            [MessagePackMember(6)]
+            public DateTime? SomeNullableDateTimeField { get; set; }
+
+            [MessagePackMember(7)]
+            public DateTime? SomeNullableDateTimeField2 { get; set; }
         }
 
         [Fact]
@@ -52,7 +58,9 @@ namespace Tarantool.Client
                     SomeIntField = 1900,
                     SomeDateTimeField = now,
                     SomeDateTimeFieldN = now,
-                    SomeDateTimeFieldU = now
+                    SomeDateTimeFieldU = now,
+                    SomeNullableDateTimeField = now,
+                    SomeNullableDateTimeField2 = null
                 });
 
                 Assert.Equal(1, result.Count);

@@ -17,23 +17,24 @@ namespace Tarantool.Client.Serialization
 
         public static object Map(Type targetType, MessagePackObject source, PropertyInfo property = null)
         {
+            if (source.IsNil) return null;
             if (targetType == typeof(string)) return source.AsString();
-            if (targetType == typeof(int)) return source.AsInt32();
-            if (targetType == typeof(uint)) return source.AsUInt32();
-            if (targetType == typeof(long)) return source.AsInt64();
-            if (targetType == typeof(ulong)) return source.AsUInt64();
-            if (targetType == typeof(float)) return source.AsSingle();
-            if (targetType == typeof(double)) return source.AsDouble();
-            if (targetType == typeof(bool)) return source.AsBoolean();
+            if (targetType == typeof(int) || targetType == typeof(int?)) return source.AsInt32();
+            if (targetType == typeof(uint) || targetType == typeof(uint?)) return source.AsUInt32();
+            if (targetType == typeof(long) || targetType == typeof(long?)) return source.AsInt64();
+            if (targetType == typeof(ulong) || targetType == typeof(ulong?)) return source.AsUInt64();
+            if (targetType == typeof(float) || targetType == typeof(float?)) return source.AsSingle();
+            if (targetType == typeof(double) || targetType == typeof(double?)) return source.AsDouble();
+            if (targetType == typeof(bool) || targetType == typeof(bool?)) return source.AsBoolean();
             if (targetType == typeof(byte[])) return source.AsBinary();
-            if (targetType == typeof(byte)) return source.AsByte();
-            if (targetType == typeof(sbyte)) return source.AsSByte();
+            if (targetType == typeof(byte) || targetType == typeof(byte?)) return source.AsByte();
+            if (targetType == typeof(sbyte) || targetType == typeof(sbyte?)) return source.AsSByte();
             if (targetType == typeof(char[])) return source.AsCharArray();
-            if (targetType == typeof(short)) return source.AsInt16();
-            if (targetType == typeof(ushort)) return source.AsUInt16();
+            if (targetType == typeof(short) || targetType == typeof(short?)) return source.AsInt16();
+            if (targetType == typeof(ushort) || targetType == typeof(ushort?)) return source.AsUInt16();
+            if (targetType == typeof(DateTime) || targetType == typeof(DateTime?)) return MapDateTime(property, source);
             if (targetType == typeof(IList<MessagePackObject>)) return source.AsList();
             if (targetType == typeof(IEnumerable<MessagePackObject>)) return source.AsEnumerable();
-            if (targetType == typeof(DateTime)) return MapDateTime(property, source);
 
             var ti = targetType.GetTypeInfo();
 
@@ -43,7 +44,7 @@ namespace Tarantool.Client.Serialization
                                      || targetType.GetGenericTypeDefinition() == typeof(IList<>)))
                 return MapList(targetType, source.AsList());
 
-            if (ti.IsClass && (source.IsList || source.IsNil)) return MapClass(targetType, source);
+            if (ti.IsClass && source.IsList) return MapClass(targetType, source);
 
             if (ti.IsClass && source.IsMap) return MapDictionary(targetType, source.AsDictionary());
 
@@ -55,7 +56,6 @@ namespace Tarantool.Client.Serialization
 
         private static object MapClass(Type targetType, MessagePackObject source)
         {
-            if (source.IsNil) return null;
             var sourceFields = source.AsList();
             var target = Activator.CreateInstance(targetType);
             foreach (var property in targetType.GetRuntimeProperties())
@@ -88,8 +88,7 @@ namespace Tarantool.Client.Serialization
                 case DateTimeMemberConversionMethod.UnixEpoc:
                     var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                     return epoch.AddMilliseconds(source.AsInt64());
-                default:
-                    return DateTime.FromBinary(source.AsInt64());
+                default: return DateTime.FromBinary(source.AsInt64());
             }
         }
 
