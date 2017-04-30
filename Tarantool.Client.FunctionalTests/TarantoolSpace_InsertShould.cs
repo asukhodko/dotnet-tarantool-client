@@ -34,6 +34,7 @@ namespace Tarantool.Client
             public DateTime SomeDateTimeFieldU { get; set; }
 
             [MessagePackMember(6)]
+            [MessagePackDateTimeMember(DateTimeConversionMethod = DateTimeMemberConversionMethod.UnixEpoc)]
             public DateTime? SomeNullableDateTimeField { get; set; }
 
             [MessagePackMember(7)]
@@ -70,6 +71,7 @@ namespace Tarantool.Client
                 Assert.Equal(now, result[0].SomeDateTimeField);
                 Assert.Equal(now, result[0].SomeDateTimeFieldN);
                 Assert.Equal((now - result[0].SomeDateTimeFieldU).TotalSeconds, 0, 2);
+                Assert.Equal((now - result[0].SomeNullableDateTimeField.Value).TotalSeconds, 0, 2);
             }
             finally
             {

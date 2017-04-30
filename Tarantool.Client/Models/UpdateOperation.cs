@@ -63,7 +63,13 @@ namespace Tarantool.Client.Models
 
         protected override void PackArgumentToMessage(Packer packer)
         {
-            if (typeof(TField) == typeof(DateTime))
+            if (Argument == null)
+            {
+                packer.PackNull();
+                return;
+            }
+
+            if (typeof(TField) == typeof(DateTime) || typeof(TField) == typeof(DateTime?))
             {
                 var date = (DateTime)(object)Argument;
 
