@@ -15,27 +15,28 @@ namespace Tarantool.Client.Extensions
         /// <exception cref="ArgumentException">parts is null or empty.</exception>
         /// <exception cref="IndexAlreadyExistsException"></exception>
         /// <exception cref="TarantoolResponseException"></exception>
-        public static async Task CreateIndexAsync(
+        public static Task CreateIndexAsync(
             this ITarantoolClient tarantoolClient,
             string spaceName,
             string indexName,
             IndexType indexType,
             params IndexPart[] parts)
         {
-            try
-            {
-                if (parts == null || !parts.Any()) throw new ArgumentException(nameof(parts));
-                var partsString = string.Join(",", parts.Select(x => $"{x.FieldNumber + 1}, '{x.Type.ToString()}'"));
-                await tarantoolClient.EvalAsync(
-                        $"box.space.{spaceName}:create_index('{indexName}', {{type = '{indexType}', parts = {{{partsString}}}}})")
-                    .ConfigureAwait(false);
-            }
-            catch (TarantoolResponseException ex)
-            {
-                if (ex.Message.StartsWith("Index") && ex.Message.EndsWith("already exists"))
-                    throw new IndexAlreadyExistsException(ex.Message, ex);
-                throw;
-            }
+            return tarantoolClient.CreateIndexAsync(spaceName, indexName, indexType, CancellationToken.None, parts);
+        }
+
+        /// <exception cref="ArgumentException">parts is null or empty.</exception>
+        /// <exception cref="IndexAlreadyExistsException"></exception>
+        /// <exception cref="TarantoolResponseException"></exception>
+        public static Task CreateIndexAsync(
+            this ITarantoolClient tarantoolClient,
+            string spaceName,
+            string indexName,
+            IndexType indexType,
+            bool unique,
+            params IndexPart[] parts)
+        {
+            return tarantoolClient.CreateIndexAsync(spaceName, indexName, indexType, unique, CancellationToken.None, parts);
         }
 
         /// <exception cref="ArgumentException">parts is null or empty.</exception>
@@ -66,21 +67,56 @@ namespace Tarantool.Client.Extensions
             }
         }
 
+        /// <exception cref="ArgumentException">parts is null or empty.</exception>
+        /// <exception cref="IndexAlreadyExistsException"></exception>
         /// <exception cref="TarantoolResponseException"></exception>
-        public static async Task CreateIndexIfNotExistsAsync(
+        public static async Task CreateIndexAsync(
+            this ITarantoolClient tarantoolClient,
+            string spaceName,
+            string indexName,
+            IndexType indexType,
+            bool unique,
+            CancellationToken cancellationToken,
+            params IndexPart[] parts)
+        {
+            try
+            {
+                if (parts == null || !parts.Any()) throw new ArgumentException(nameof(parts));
+                var partsString = string.Join(",", parts.Select(x => $"{x.FieldNumber + 1}, '{x.Type.ToString()}'"));
+                await tarantoolClient.EvalAsync(
+                        $"box.space.{spaceName}:create_index('{indexName}', {{type = '{indexType}', unique = {unique.ToString().ToLower()}, parts = {{{partsString}}}}})",
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (TarantoolResponseException ex)
+            {
+                if (ex.Message.StartsWith("Index") && ex.Message.EndsWith("already exists"))
+                    throw new IndexAlreadyExistsException(ex.Message, ex);
+                throw;
+            }
+        }
+
+        /// <exception cref="TarantoolResponseException"></exception>
+        public static Task CreateIndexIfNotExistsAsync(
             this ITarantoolClient tarantoolClient,
             string spaceName,
             string indexName,
             IndexType indexType,
             params IndexPart[] parts)
         {
-            try
-            {
-                await tarantoolClient.CreateIndexAsync(spaceName, indexName, indexType, parts).ConfigureAwait(false);
-            }
-            catch (IndexAlreadyExistsException)
-            {
-            }
+            return tarantoolClient.CreateIndexIfNotExistsAsync(spaceName, indexName, indexType, CancellationToken.None, parts);
+        }
+
+        /// <exception cref="TarantoolResponseException"></exception>
+        public static Task CreateIndexIfNotExistsAsync(
+            this ITarantoolClient tarantoolClient,
+            string spaceName,
+            string indexName,
+            IndexType indexType,
+            bool unique,
+            params IndexPart[] parts)
+        {
+            return tarantoolClient.CreateIndexIfNotExistsAsync(spaceName, indexName, indexType, unique, CancellationToken.None, parts);
         }
 
         /// <exception cref="TarantoolResponseException"></exception>
@@ -95,6 +131,26 @@ namespace Tarantool.Client.Extensions
             try
             {
                 await tarantoolClient.CreateIndexAsync(spaceName, indexName, indexType, cancellationToken, parts)
+                    .ConfigureAwait(false);
+            }
+            catch (IndexAlreadyExistsException)
+            {
+            }
+        }
+
+        /// <exception cref="TarantoolResponseException"></exception>
+        public static async Task CreateIndexIfNotExistsAsync(
+            this ITarantoolClient tarantoolClient,
+            string spaceName,
+            string indexName,
+            IndexType indexType,
+            bool unique,
+            CancellationToken cancellationToken,
+            params IndexPart[] parts)
+        {
+            try
+            {
+                await tarantoolClient.CreateIndexAsync(spaceName, indexName, indexType, unique, cancellationToken, parts)
                     .ConfigureAwait(false);
             }
             catch (IndexAlreadyExistsException)
