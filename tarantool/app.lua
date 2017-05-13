@@ -1,12 +1,6 @@
 #!/usr/bin/env tarantool
 
-box.cfg
-{
-    pid_file = nil,
-    background = false,
-    log_level = 5,
-    listen = 3301
-}
+box.cfg {}
 
 box.schema.user.create('mytestuser', { password = 'mytestpass' })
 box.schema.user.grant('mytestuser', 'read,write', 'space', '_schema')
