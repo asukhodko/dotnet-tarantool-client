@@ -7,12 +7,13 @@ using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolClient_UpdateShould
     {
         [Fact]
         public async Task Update()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
             try

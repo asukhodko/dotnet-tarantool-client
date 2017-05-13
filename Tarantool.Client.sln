@@ -1,13 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tarantool.Client", "Tarantool.Client\Tarantool.Client.csproj", "{CB780186-F418-4FFD-BF05-0D6D5D3AD555}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tarantool.Client.Tests", "Tarantool.Client.Tests\Tarantool.Client.Tests.csproj", "{058DA505-95A1-48A8-840B-2DEA4888FD63}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tarantool.Client.FunctionalTests", "Tarantool.Client.FunctionalTests\Tarantool.Client.FunctionalTests.csproj", "{B75253C3-0D3D-4DDF-9D93-AACA01C7CC44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{079B4A6C-75A1-4A1F-8F0D-3F487C4C8137}"
+	ProjectSection(SolutionItems) = preProject
+		tarantool\Dockerfile = tarantool\Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tarantool", "tarantool", "{BF8E0FAA-8578-4050-A816-FC467ECBDBB4}"
+	ProjectSection(SolutionItems) = preProject
+		tarantool\app.init.lua = tarantool\app.init.lua
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +41,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BF8E0FAA-8578-4050-A816-FC467ECBDBB4} = {079B4A6C-75A1-4A1F-8F0D-3F487C4C8137}
 	EndGlobalSection
 EndGlobal

@@ -4,12 +4,13 @@ using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolClientExtensions_CreateSpaceAsyncShoud
     {
         [Fact]
         public async Task CreateSpace()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
 
             try
             {
@@ -28,7 +29,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task HandleSpaceExists()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
 
             try
             {

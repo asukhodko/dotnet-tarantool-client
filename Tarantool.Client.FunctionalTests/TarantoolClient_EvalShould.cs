@@ -6,12 +6,13 @@ using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolClient_EvalShould
     {
         [Fact]
         public async Task EvaluateScalars()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
 
             var result = (await tarantoolClient.EvalAsync(new EvalRequest
             {
@@ -24,7 +25,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task EvaluateScalarsFromArguments()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
 
             var result = (await tarantoolClient.EvalAsync(new EvalRequest
             {

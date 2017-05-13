@@ -7,12 +7,13 @@ using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolClient_InsertShould
     {
         [Fact]
         public async Task InsertRaw()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
             await tarantoolClient.RequestAsync(new DeleteRequest
             {
@@ -57,7 +58,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task InsertEntity()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
             await tarantoolClient.RequestAsync(new DeleteRequest
             {

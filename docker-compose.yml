@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  tarantool:
+    build:
+      context: ./tarantool
+      dockerfile: Dockerfile
+    ports:
+      - "3301:3301"

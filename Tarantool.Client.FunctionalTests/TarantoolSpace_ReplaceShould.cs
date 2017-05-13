@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using MsgPack.Serialization;
 
 using Tarantool.Client.Models;
-using Tarantool.Client.Models.ClientMessages;
 using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolSpace_ReplaceShould
     {
         public class MyTestEntity
@@ -30,7 +28,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task ReplaceEntity()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
             var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 

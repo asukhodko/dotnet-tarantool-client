@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tarantool.Client.Tests.PrivateAccessors
+namespace Tarantool.Client.FunctionalTests.PrivateAccessors
 {
     public static class ConnectionPoolPrivateAccessor
     {

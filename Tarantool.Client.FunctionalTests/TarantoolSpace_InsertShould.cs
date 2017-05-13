@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MsgPack.Serialization;
 
@@ -9,6 +8,7 @@ using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolSpace_InsertShould
     {
         public class MyTestEntity
@@ -44,7 +44,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task InsertEntity()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
             var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
             await testSpacePrimaryIndex.DeleteAsync(new IndexKey<uint>(598));
