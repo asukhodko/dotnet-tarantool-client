@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -75,7 +77,14 @@ namespace Tarantool.Client
 
             // ReSharper disable once ExceptionNotDocumented
             var node = _connectionOptions.Nodes[_nodeNumber];
-            await _socket.ConnectAsync(node.Host, node.Port).ConfigureAwait(false);
+            var isParsed = IPAddress.TryParse(node.Host, out IPAddress hostIp);
+            if (!isParsed)
+            {
+                var hostEntry = await Dns.GetHostEntryAsync(node.Host).ConfigureAwait(false);
+                hostIp = hostEntry.AddressList.First();
+            }
+
+            await _socket.ConnectAsync(hostIp, node.Port).ConfigureAwait(false);
             _stream = new NetworkStream(_socket, true);
             WhenDisconnected = ReadServerMessagesAsync(cancellationToken);
             await HandshakeAsync(cancellationToken).ConfigureAwait(false);

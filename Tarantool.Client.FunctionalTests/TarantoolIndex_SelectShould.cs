@@ -10,6 +10,7 @@ using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolIndex_SelectShould
     {
         public class MyTestEntity
@@ -30,7 +31,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectAll()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpace = tarantoolClient.GetSpace<MessagePackObject>("test");
             var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
@@ -47,7 +48,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectBy1()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpace = tarantoolClient.GetSpace<MessagePackObject>("test");
             var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
@@ -60,7 +61,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectBy3()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpace = tarantoolClient.GetSpace<MessagePackObject>("test");
             var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 
@@ -74,7 +75,7 @@ namespace Tarantool.Client
         [Fact]
         public async Task SelectEntityBy1()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpace = tarantoolClient.GetSpace<MyTestEntity>("test");
             var testSpacePrimaryIndex = testSpace.GetIndex<IndexKey<uint>>(0);
 

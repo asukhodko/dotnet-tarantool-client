@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Tarantool.Client.Models;
-using Tarantool.Client.Tests.PrivateAccessors;
+using Tarantool.Client.FunctionalTests.PrivateAccessors;
 using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class ConnectionPool_AcquireConnectionShould
     {
         [Fact]
@@ -12,7 +13,7 @@ namespace Tarantool.Client
         {
             var pool =
                 (ConnectionPool)
-                ConnectionPool.GetPool(new ConnectionOptions("tarantool-host:3301"));
+                ConnectionPool.GetPool(new ConnectionOptions("127.0.0.1:3301"));
             Assert.Equal(0, pool._connections().Count);
 
             using (var connection = await pool.AcquireConnectionAsync())
@@ -28,7 +29,7 @@ namespace Tarantool.Client
         {
             var pool =
                 (ConnectionPool)
-                ConnectionPool.GetPool(new ConnectionOptions("tarantool-host:3302"));
+                ConnectionPool.GetPool(new ConnectionOptions("127.0.0.2:3301"));
             using (await pool.AcquireConnectionAsync())
             {
                 Assert.Equal(1, pool._connections().Count);
@@ -47,7 +48,7 @@ namespace Tarantool.Client
         {
             var pool =
                 (ConnectionPool)
-                ConnectionPool.GetPool(new ConnectionOptions("tarantool-host:3303"));
+                ConnectionPool.GetPool(new ConnectionOptions("127.0.0.3:3301"));
             using (await pool.AcquireConnectionAsync())
             {
             }

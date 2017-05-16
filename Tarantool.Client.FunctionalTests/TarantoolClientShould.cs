@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Tarantool.Client
 {
+    [Collection("Tarantool database collection")]
     public class TarantoolClientShould
     {
         /*
@@ -33,14 +34,14 @@ namespace Tarantool.Client
         [Fact]
         public async Task ConnectAsGuest()
         {
-            var tarantoolClient = TarantoolClient.Create("tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            var tarantoolClient = TarantoolClient.Create("localhost:3301");
             await tarantoolClient.ConnectAsync();
         }
 
         [Fact]
         public async Task ConnectAsUser()
         {
-            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+            var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             await tarantoolClient.ConnectAsync();
         }
 
@@ -48,7 +49,7 @@ namespace Tarantool.Client
         public async Task NotConnectAsInvalidUser()
         {
             var tarantoolClient = TarantoolClient.Create(
-                    "invaliduser:invalidpass@tarantool-host:3301,tarantool-host:3302,tarantool-host:3303");
+                    "invaliduser:invalidpass@localhost:3301");
 
             var ex = await Assert.ThrowsAsync<TarantoolException>(() => tarantoolClient.ConnectAsync());
             Assert.Equal("User 'invaliduser' is not found", ex.Message);

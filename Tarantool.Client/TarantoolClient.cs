@@ -11,6 +11,7 @@ using Tarantool.Client.Models.ClientMessages;
 using Tarantool.Client.Serialization;
 
 [assembly: InternalsVisibleTo("Tarantool.Client.Tests")]
+[assembly: InternalsVisibleTo("Tarantool.Client.FunctionalTests")]
 
 namespace Tarantool.Client
 {
