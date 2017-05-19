@@ -30,25 +30,6 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" />.</returns>
         Task ConnectAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <summary>Performs a DELETE request.</summary>
-        /// <param name="deleteRequest">The delete request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        ///     The <see cref="Task" /> with list of deleted rows.
-        /// </returns>
-        Task<IList<MessagePackObject>> DeleteAsync(
-            DeleteRequest deleteRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs a DELETE request.</summary>
-        /// <param name="deleteRequest">The delete request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with list of deleted rows.</returns>
-        Task<IList<T>> DeleteAsync<T>(
-            DeleteRequest deleteRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
         /// <summary>Performs an EVAL request.</summary>
         /// <param name="evalRequest">The call request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -87,41 +68,7 @@ namespace Tarantool.Client
         /// <returns>The <see cref="ITarantoolSpace{T}" />.</returns>
         ITarantoolSpace<T> GetSpace<T>(string spaceName);
 
-        /// <summary>Performs an INSERT request.</summary>
-        /// <param name="insertRequest">The insert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
-        Task<IList<MessagePackObject>> InsertAsync(
-            InsertRequest insertRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs an INSERT request.</summary>
-        /// <param name="insertRequest">The insert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
-        Task<IList<T>> InsertAsync<T>(
-            InsertRequest<T> insertRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs a REPLACE request.</summary>
-        /// <param name="replaceRequest">The replace request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
-        Task<IList<MessagePackObject>> ReplaceAsync(
-            ReplaceRequest replaceRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs a REPLACE request.</summary>
-        /// <param name="replaceRequest">The replace request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
-        Task<IList<T>> ReplaceAsync<T>(
-            ReplaceRequest<T> replaceRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs a general request.</summary>
+        /// <summary>Performs a general request and fetches response.</summary>
         /// <param name="clientMessage">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> with MessagePackObject as result.</returns>
@@ -129,53 +76,29 @@ namespace Tarantool.Client
             ClientMessageBase clientMessage,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <summary>Performs a SELECT request.</summary>
-        /// <param name="selectRequest">The select request.</param>
+        /// <summary>Performs a general request.</summary>
+        /// <param name="clientMessage">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
-        Task<IList<MessagePackObject>> SelectAsync(
-            SelectRequest selectRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>The <see cref="Task" /> with Task with MessagePackObject as result.</returns>
+        Task<Task<MessagePackObject>> RequestAsyncAsync(
+            ClientMessageBase clientMessage,
+            CancellationToken cancellationToken);
 
-        /// <summary>Performs a SELECT request.</summary>
-        /// <param name="selectRequest">The select request.</param>
+        /// <summary>Performs a general request.</summary>
+        /// <param name="clientMessage">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with selected data as result.</returns>
-        Task<IList<T>> SelectAsync<T>(
-            SelectRequest selectRequest,
+        /// <returns>The <see cref="Task" /> with Task with T as result.</returns>
+        Task<Task<IList<T>>> RequestAsyncAsync<T>(
+            ClientMessageBase clientMessage,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <summary>Performs a UPDATE request.</summary>
-        /// <param name="updateRequest">The update request.</param>
+        /// <summary>Performs a general request and fetches response.</summary>
+        /// <param name="clientMessage">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with updated data as result.</returns>
-        Task<IList<MessagePackObject>> UpdateAsync(
-            UpdateRequest updateRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs a UPDATE request.</summary>
-        /// <param name="updateRequest">The update request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with updated data as result.</returns>
-        Task<IList<T>> UpdateAsync<T>(
-            UpdateRequest updateRequest,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs a UPSERT (update-or-insert) request.</summary>
-        /// <param name="upsertRequest">The upsert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with no data as result.</returns>
-        Task UpsertAsync(UpsertRequest upsertRequest, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>Performs a UPSERT (update-or-insert) request.</summary>
-        /// <param name="upsertRequest">The upsert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with no data as result.</returns>
-        Task UpsertAsync<T>(
-            UpsertRequest<T> upsertRequest,
+        /// <returns>The <see cref="Task" /> with MessagePackObject as result.</returns>
+        Task<IList<MessagePackObject>> RequestListAsync(
+            ClientMessageBase clientMessage,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

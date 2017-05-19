@@ -66,12 +66,22 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
         public async Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken)
         {
-            await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
-            var result = await TarantoolClient.InsertAsync(
-                                 new InsertRequest<T> { SpaceId = SpaceId, Tuple = entity },
-                                 cancellationToken)
-                             .ConfigureAwait(false);
+            var result =
+                await (await InsertAsyncAsync(entity, cancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
             return result;
+        }
+
+        /// <summary>Inserts entity into space.</summary>
+        /// <param name="entity">The entity for insert.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
+        public async Task<Task<IList<T>>> InsertAsyncAsync(T entity, CancellationToken cancellationToken)
+        {
+            await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
+            return await TarantoolClient.RequestAsyncAsync<T>(
+                           new InsertRequest<T> { SpaceId = SpaceId, Tuple = entity },
+                           cancellationToken)
+                       .ConfigureAwait(false);
         }
 
         /// <summary>Replaces entity in space.</summary>
@@ -81,11 +91,21 @@ namespace Tarantool.Client
         public async Task<IList<T>> ReplaceAsync(T entity, CancellationToken cancellationToken)
         {
             await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
-            var result = await TarantoolClient.ReplaceAsync(
-                                 new ReplaceRequest<T> { SpaceId = SpaceId, Tuple = entity },
-                                 cancellationToken)
-                             .ConfigureAwait(false);
-            return result;
+            return await (await ReplaceAsyncAsync(entity, cancellationToken).ConfigureAwait(false))
+                       .ConfigureAwait(false);
+        }
+
+        /// <summary>Replaces entity in space.</summary>
+        /// <param name="entity">The entity for replace.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
+        public async Task<Task<IList<T>>> ReplaceAsyncAsync(T entity, CancellationToken cancellationToken)
+        {
+            await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
+            return await TarantoolClient.RequestAsyncAsync<T>(
+                           new ReplaceRequest<T> { SpaceId = SpaceId, Tuple = entity },
+                           cancellationToken)
+                       .ConfigureAwait(false);
         }
 
         /// <summary>Searches entity by primary key and updates it if found or inserts it if not found.</summary>
@@ -98,16 +118,29 @@ namespace Tarantool.Client
             UpdateDefinition<T> updateDefinition,
             CancellationToken cancellationToken)
         {
+            await UpsertAsyncAsync(entity, updateDefinition, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>Searches entity by primary key and updates it if found or inserts it if not found.</summary>
+        /// <param name="entity">The entity for replace.</param>
+        /// <param name="updateDefinition">The update operations list.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> for awaiting completion.</returns>
+        public async Task<Task> UpsertAsyncAsync(
+            T entity,
+            UpdateDefinition<T> updateDefinition,
+            CancellationToken cancellationToken)
+        {
             await EnsureHaveSpaceIdAsync(cancellationToken).ConfigureAwait(false);
-            await TarantoolClient.UpsertAsync(
-                    new UpsertRequest<T>
-                        {
-                            SpaceId = SpaceId,
-                            Tuple = entity,
-                            UpdateOperations = updateDefinition.UpdateOperations
-                        },
-                    cancellationToken)
-                .ConfigureAwait(false);
+            return await TarantoolClient.RequestAsyncAsync(
+                           new UpsertRequest<T>
+                           {
+                               SpaceId = SpaceId,
+                               Tuple = entity,
+                               UpdateOperations = updateDefinition.UpdateOperations
+                           },
+                           cancellationToken)
+                       .ConfigureAwait(false);
         }
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,13 +51,21 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" />.</returns>
         public async Task<IList<T>> DeleteAsync(TKey key, CancellationToken cancellationToken)
         {
+            return await (await DeleteAsyncAsync(key, cancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
+        }
+
+        /// <summary>Delete from space by key.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
+        public async Task<Task<IList<T>>> DeleteAsyncAsync(TKey key, CancellationToken cancellationToken)
+        {
             await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
             Debug.Assert(IndexId != null, "IndexId != null");
-            var result = await TarantoolClient.DeleteAsync<T>(
-                                 new DeleteRequest { SpaceId = Space.SpaceId, IndexId = IndexId.Value, Key = key.Key },
-                                 cancellationToken)
-                             .ConfigureAwait(false);
-            return result;
+            return await TarantoolClient.RequestAsyncAsync<T>(
+                           new DeleteRequest { SpaceId = Space.SpaceId, IndexId = IndexId.Value, Key = key.Key },
+                           cancellationToken)
+                       .ConfigureAwait(false);
         }
 
         /// <summary>Ensures have index id. If not then retrieves it by name. </summary>
@@ -85,20 +91,8 @@ namespace Tarantool.Client
             uint limit,
             CancellationToken cancellationToken)
         {
-            await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
-            Debug.Assert(IndexId != null, "IndexId != null");
-            var result = await TarantoolClient.SelectAsync<T>(
-                                 new SelectRequest
-                                 {
-                                     SpaceId = Space.SpaceId,
-                                     IndexId = IndexId.Value,
-                                     Iterator = iterator,
-                                     Offset = offset,
-                                     Limit = limit
-                                 },
-                                 cancellationToken)
-                             .ConfigureAwait(false);
-            return result;
+            return await (await SelectAsyncAsync(iterator, offset, limit, cancellationToken).ConfigureAwait(false))
+                       .ConfigureAwait(false);
         }
 
         /// <summary>Select from space by key</summary>
@@ -115,21 +109,65 @@ namespace Tarantool.Client
             uint limit,
             CancellationToken cancellationToken)
         {
+            return await (await SelectAsyncAsync(key, iterator, offset, limit, cancellationToken).ConfigureAwait(false))
+                       .ConfigureAwait(false);
+        }
+
+        /// <summary>Select all records from space</summary>
+        /// <param name="iterator">The iterator.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="cancellationToken">The cancellation Token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
+        public async Task<Task<IList<T>>> SelectAsyncAsync(
+            Iterator iterator,
+            uint offset,
+            uint limit,
+            CancellationToken cancellationToken)
+        {
             await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
             Debug.Assert(IndexId != null, "IndexId != null");
-            var result = await TarantoolClient.SelectAsync<T>(
-                                 new SelectRequest
-                                 {
-                                     SpaceId = Space.SpaceId,
-                                     IndexId = IndexId.Value,
-                                     Key = key.Key,
-                                     Iterator = iterator,
-                                     Offset = offset,
-                                     Limit = limit
-                                 },
-                                 cancellationToken)
-                             .ConfigureAwait(false);
-            return result;
+            return await TarantoolClient.RequestAsyncAsync<T>(
+                           new SelectRequest
+                           {
+                               SpaceId = Space.SpaceId,
+                               IndexId = IndexId.Value,
+                               Iterator = iterator,
+                               Offset = offset,
+                               Limit = limit
+                           },
+                           cancellationToken)
+                       .ConfigureAwait(false);
+        }
+
+        /// <summary>Select from space by key</summary>
+        /// <param name="key">The key filed (array or list).</param>
+        /// <param name="iterator">The iterator.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="cancellationToken">The cancellation Token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
+        public async Task<Task<IList<T>>> SelectAsyncAsync(
+            TKey key,
+            Iterator iterator,
+            uint offset,
+            uint limit,
+            CancellationToken cancellationToken)
+        {
+            await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
+            Debug.Assert(IndexId != null, "IndexId != null");
+            return await TarantoolClient.RequestAsyncAsync<T>(
+                           new SelectRequest
+                           {
+                               SpaceId = Space.SpaceId,
+                               IndexId = IndexId.Value,
+                               Key = key.Key,
+                               Iterator = iterator,
+                               Offset = offset,
+                               Limit = limit
+                           },
+                           cancellationToken)
+                       .ConfigureAwait(false);
         }
 
         /// <summary>Performs an updates in space.</summary>
@@ -142,19 +180,32 @@ namespace Tarantool.Client
             UpdateDefinition<T> updateDefinition,
             CancellationToken cancellationToken)
         {
+            return await (await UpdateAsyncAsync(key, updateDefinition, cancellationToken).ConfigureAwait(false))
+                       .ConfigureAwait(false);
+        }
+
+        /// <summary>Performs an updates in space.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="updateDefinition">The update operations list.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
+        public async Task<Task<IList<T>>> UpdateAsyncAsync(
+            TKey key,
+            UpdateDefinition<T> updateDefinition,
+            CancellationToken cancellationToken)
+        {
             await EnsureHaveIndexIdAsync(cancellationToken).ConfigureAwait(false);
             Debug.Assert(IndexId != null, "IndexId != null");
-            var result = await TarantoolClient.UpdateAsync<T>(
-                                 new UpdateRequest
-                                 {
-                                     SpaceId = Space.SpaceId,
-                                     IndexId = IndexId.Value,
-                                     Key = key.Key,
-                                     UpdateOperations = updateDefinition.UpdateOperations
-                                 },
-                                 cancellationToken)
-                             .ConfigureAwait(false);
-            return result;
+            return await TarantoolClient.RequestAsyncAsync<T>(
+                           new UpdateRequest
+                           {
+                               SpaceId = Space.SpaceId,
+                               IndexId = IndexId.Value,
+                               Key = key.Key,
+                               UpdateOperations = updateDefinition.UpdateOperations
+                           },
+                           cancellationToken)
+                       .ConfigureAwait(false);
         }
     }
 }

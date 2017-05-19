@@ -11,14 +11,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tarantool.Client.Functional
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{079B4A6C-75A1-4A1F-8F0D-3F487C4C8137}"
 	ProjectSection(SolutionItems) = preProject
-		tarantool\Dockerfile = tarantool\Dockerfile
+		LICENSE.md = LICENSE.md
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tarantool", "tarantool", "{BF8E0FAA-8578-4050-A816-FC467ECBDBB4}"
 	ProjectSection(SolutionItems) = preProject
 		tarantool\app.lua = tarantool\app.lua
 		docker-compose.yml = docker-compose.yml
+		tarantool\Dockerfile = tarantool\Dockerfile
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tarantool.Client.PerformanceTests", "Tarantool.Client.PerformanceTests\Tarantool.Client.PerformanceTests.csproj", "{BDFF3124-42A7-4E47-AF92-18CA590CE052}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +42,10 @@ Global
 		{B75253C3-0D3D-4DDF-9D93-AACA01C7CC44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B75253C3-0D3D-4DDF-9D93-AACA01C7CC44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B75253C3-0D3D-4DDF-9D93-AACA01C7CC44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDFF3124-42A7-4E47-AF92-18CA590CE052}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDFF3124-42A7-4E47-AF92-18CA590CE052}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDFF3124-42A7-4E47-AF92-18CA590CE052}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDFF3124-42A7-4E47-AF92-18CA590CE052}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

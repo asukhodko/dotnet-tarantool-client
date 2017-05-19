@@ -1,6 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Tarantool.Client.Models;
 using Tarantool.Client.FunctionalTests.PrivateAccessors;
+using Tarantool.Client.Models.ClientMessages;
+
 using Xunit;
 
 namespace Tarantool.Client
@@ -49,16 +53,22 @@ namespace Tarantool.Client
             var pool =
                 (ConnectionPool)
                 ConnectionPool.GetPool(new ConnectionOptions("127.0.0.3:3301"));
-            using (await pool.AcquireConnectionAsync())
+            using (var connection = await pool.AcquireConnectionAsync())
             {
+                await connection.RequestAsync(new EvalRequest { Expression = "return 0" }, CancellationToken.None);
             }
             Assert.Equal(1, pool._connections().Count);
 
-            using (var connection = await pool.AcquireConnectionAsync())
+            foreach (var dummy in Enumerable.Repeat(0, 100))
             {
-                Assert.NotNull(connection);
-                Assert.Equal(1, pool._connections().Count);
+                using (var connection = await pool.AcquireConnectionAsync())
+                {
+                    await connection.RequestAsync(new EvalRequest { Expression = "return 0" }, CancellationToken.None);
+
+                    Assert.Equal(1, pool._connections().Count);
+                }
             }
+
             Assert.Equal(1, pool._connections().Count);
         }
     }

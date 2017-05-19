@@ -21,6 +21,14 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" /> with list of deleted rows.</returns>
         Task<IList<T>> DeleteAsync(TKey key, CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>Delete from space by key.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with list of deleted rows.</returns>
+        Task<Task<IList<T>>> DeleteAsyncAsync(
+            TKey key,
+            CancellationToken cancellationToken = default(CancellationToken));
+
         /// <summary>Ensures have index id. If not then retrieves it by name. </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" />.</returns>
@@ -52,12 +60,48 @@ namespace Tarantool.Client
             uint limit = int.MaxValue,
             CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>Select all records from space</summary>
+        /// <param name="iterator">The iterator.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="cancellationToken">The cancellation Token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
+        Task<Task<IList<T>>> SelectAsyncAsync(
+            Iterator iterator = Iterator.All,
+            uint offset = 0,
+            uint limit = int.MaxValue,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>Select from space by key</summary>
+        /// <param name="key">The key value.</param>
+        /// <param name="iterator">The iterator.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="cancellationToken">The cancellation Token.</param>
+        /// <returns>The <see cref="Task" />.</returns>
+        Task<Task<IList<T>>> SelectAsyncAsync(
+            TKey key,
+            Iterator iterator = Iterator.Eq,
+            uint offset = 0,
+            uint limit = int.MaxValue,
+            CancellationToken cancellationToken = default(CancellationToken));
+
         /// <summary>Performs an updates in space.</summary>
         /// <param name="key">The key.</param>
         /// <param name="updateDefinition">The update operations list.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
         Task<IList<T>> UpdateAsync(
+            TKey key,
+            UpdateDefinition<T> updateDefinition,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>Performs an updates in space.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="updateDefinition">The update operations list.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
+        Task<Task<IList<T>>> UpdateAsyncAsync(
             TKey key,
             UpdateDefinition<T> updateDefinition,
             CancellationToken cancellationToken = default(CancellationToken));

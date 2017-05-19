@@ -74,21 +74,18 @@ namespace Tarantool.Client
                 }
         }
 
-        /// <summary>Send request to Tarantool server and get response.</summary>
+        /// <summary>Send request to Tarantool server.</summary>
         /// <param name="clientMessage">The client message.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with response.</returns>
-        public async Task<MessagePackObject> RequestAsync(
+        /// <returns>The <see cref="Task" /> for awaiting the next task with response.</returns>
+        public async Task<Task<MessagePackObject>> RequestAsync(
             ClientMessageBase clientMessage,
             CancellationToken cancellationToken)
         {
-            Task<MessagePackObject> resultTask;
             using (var connection = await AcquireConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
-                resultTask = await connection.RequestAsync(clientMessage, cancellationToken).ConfigureAwait(false);
+                return await connection.RequestAsync(clientMessage, cancellationToken).ConfigureAwait(false);
             }
-
-            return await resultTask.ConfigureAwait(false);
         }
 
         /// <summary>Acquire and lock connection from a pool.</summary>

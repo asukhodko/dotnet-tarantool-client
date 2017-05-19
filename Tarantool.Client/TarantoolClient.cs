@@ -71,32 +71,6 @@ namespace Tarantool.Client
             await _connectionPool.ConnectAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>Performs a DELETE request.</summary>
-        /// <param name="deleteRequest">The delete request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        ///     The <see cref="Task" /> with list of deleted rows.
-        /// </returns>
-        public async Task<IList<MessagePackObject>> DeleteAsync(
-            DeleteRequest deleteRequest,
-            CancellationToken cancellationToken)
-        {
-            return (await RequestAsync(deleteRequest, cancellationToken).ConfigureAwait(false)).AsList();
-        }
-
-        /// <summary>Performs a DELETE request.</summary>
-        /// <param name="deleteRequest">The delete request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with list of deleted rows.</returns>
-        public async Task<IList<T>> DeleteAsync<T>(
-            DeleteRequest deleteRequest,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var result = (await RequestAsync(deleteRequest, cancellationToken).ConfigureAwait(false)).AsList();
-            return MapCollection<T>(result).ToList();
-        }
-
         /// <summary>Performs an EVAL request.</summary>
         /// <param name="evalRequest">The call request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -116,16 +90,16 @@ namespace Tarantool.Client
             string indexName,
             CancellationToken cancellationToken)
         {
-            var selectResult = await SelectAsync<Index>(
-                                       new SelectRequest
-                                       {
-                                           SpaceId = VIndexSpaceId,
-                                           IndexId = VIndexNameIndexId,
-                                           Iterator = Iterator.Eq,
-                                           Key = new List<object> { spaceId, indexName }
-                                       },
-                                       cancellationToken)
-                                   .ConfigureAwait(false);
+            var selectResult = await (await RequestAsyncAsync<Index>(
+                                              new SelectRequest
+                                              {
+                                                  SpaceId = VIndexSpaceId,
+                                                  IndexId = VIndexNameIndexId,
+                                                  Iterator = Iterator.Eq,
+                                                  Key = new List<object> { spaceId, indexName }
+                                              },
+                                              cancellationToken)
+                                          .ConfigureAwait(false)).ConfigureAwait(false);
             return selectResult.FirstOrDefault();
         }
 
@@ -135,16 +109,16 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" /> with <see cref="Space" /> as result.</returns>
         public async Task<Space> FindSpaceByNameAsync(string spaceName, CancellationToken cancellationToken)
         {
-            var selectResult = await SelectAsync<Space>(
-                                       new SelectRequest
-                                       {
-                                           SpaceId = VSpaceSpaceId,
-                                           IndexId = VSpaceNameIndexId,
-                                           Iterator = Iterator.Eq,
-                                           Key = new List<object> { spaceName }
-                                       },
-                                       cancellationToken)
-                                   .ConfigureAwait(false);
+            var selectResult = await (await RequestAsyncAsync<Space>(
+                                              new SelectRequest
+                                              {
+                                                  SpaceId = VSpaceSpaceId,
+                                                  IndexId = VSpaceNameIndexId,
+                                                  Iterator = Iterator.Eq,
+                                                  Key = new List<object> { spaceName }
+                                              },
+                                              cancellationToken)
+                                          .ConfigureAwait(false)).ConfigureAwait(false);
             return selectResult.FirstOrDefault();
         }
 
@@ -166,53 +140,7 @@ namespace Tarantool.Client
             return new TarantoolSpace<T>(this, spaceName);
         }
 
-        /// <summary>Performs an INSERT request.</summary>
-        /// <param name="insertRequest">The insert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
-        public async Task<IList<MessagePackObject>> InsertAsync(
-            InsertRequest insertRequest,
-            CancellationToken cancellationToken)
-        {
-            return (await RequestAsync(insertRequest, cancellationToken).ConfigureAwait(false)).AsList();
-        }
-
-        /// <summary>Performs an INSERT request.</summary>
-        /// <param name="insertRequest">The insert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
-        public async Task<IList<T>> InsertAsync<T>(InsertRequest<T> insertRequest, CancellationToken cancellationToken)
-        {
-            var result = (await RequestAsync(insertRequest, cancellationToken).ConfigureAwait(false)).AsList();
-            return MapCollection<T>(result).ToList();
-        }
-
-        /// <summary>Performs a REPLACE request.</summary>
-        /// <param name="replaceRequest">The replace request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
-        public async Task<IList<MessagePackObject>> ReplaceAsync(
-            ReplaceRequest replaceRequest,
-            CancellationToken cancellationToken)
-        {
-            return (await RequestAsync(replaceRequest, cancellationToken).ConfigureAwait(false)).AsList();
-        }
-
-        /// <summary>Performs a REPLACE request.</summary>
-        /// <param name="replaceRequest">The replace request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
-        public async Task<IList<T>> ReplaceAsync<T>(
-            ReplaceRequest<T> replaceRequest,
-            CancellationToken cancellationToken)
-        {
-            var result = (await RequestAsync(replaceRequest, cancellationToken).ConfigureAwait(false)).AsList();
-            return MapCollection<T>(result).ToList();
-        }
-
-        /// <summary>Performs a general request.</summary>
+        /// <summary>Performs a general request and fetches response.</summary>
         /// <param name="clientMessage">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> with MessagePackObject as result.</returns>
@@ -220,72 +148,44 @@ namespace Tarantool.Client
             ClientMessageBase clientMessage,
             CancellationToken cancellationToken)
         {
+            return await (await RequestAsyncAsync(clientMessage, cancellationToken).ConfigureAwait(false))
+                       .ConfigureAwait(false);
+        }
+
+        /// <summary>Performs a general request.</summary>
+        /// <param name="clientMessage">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with Task with MessagePackObject as result.</returns>
+        public async Task<Task<MessagePackObject>> RequestAsyncAsync(
+            ClientMessageBase clientMessage,
+            CancellationToken cancellationToken)
+        {
             return await _connectionPool.RequestAsync(clientMessage, cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>Performs a SELECT request.</summary>
-        /// <param name="selectRequest">The select request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
-        public async Task<IList<MessagePackObject>> SelectAsync(
-            SelectRequest selectRequest,
-            CancellationToken cancellationToken)
-        {
-            return (await RequestAsync(selectRequest, cancellationToken).ConfigureAwait(false)).AsList();
-        }
-
-        /// <summary>Performs a SELECT request.</summary>
-        /// <param name="selectRequest">The select request.</param>
+        /// <summary>Performs a general request.</summary>
+        /// <param name="clientMessage">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with selected data as result.</returns>
-        public async Task<IList<T>> SelectAsync<T>(SelectRequest selectRequest, CancellationToken cancellationToken)
-        {
-            var result = await SelectAsync(selectRequest, cancellationToken).ConfigureAwait(false);
-            return MapCollection<T>(result).ToList();
-        }
-
-        /// <summary>Performs a UPDATE request.</summary>
-        /// <param name="updateRequest">The update request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with updated data as result.</returns>
-        public async Task<IList<MessagePackObject>> UpdateAsync(
-            UpdateRequest updateRequest,
+        /// <returns>The <see cref="Task" /> with Task with T as result.</returns>
+        public async Task<Task<IList<T>>> RequestAsyncAsync<T>(
+            ClientMessageBase clientMessage,
             CancellationToken cancellationToken)
         {
-            return (await RequestAsync(updateRequest, cancellationToken).ConfigureAwait(false)).AsList();
+            var resultTask = await RequestListAsyncAsync(clientMessage, cancellationToken).ConfigureAwait(false);
+            return resultTask.ContinueWith(t => (IList<T>)MapCollection<T>(t.Result).ToList(), cancellationToken);
         }
 
-        /// <summary>Performs a UPDATE request.</summary>
-        /// <param name="updateRequest">The update request.</param>
+        /// <summary>Performs a general request and fetches response.</summary>
+        /// <param name="clientMessage">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with updated data as result.</returns>
-        public async Task<IList<T>> UpdateAsync<T>(
-            UpdateRequest updateRequest,
+        /// <returns>The <see cref="Task" /> with MessagePackObject as result.</returns>
+        public async Task<IList<MessagePackObject>> RequestListAsync(
+            ClientMessageBase clientMessage,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var result = (await RequestAsync(updateRequest, cancellationToken).ConfigureAwait(false)).AsList();
-            return MapCollection<T>(result).ToList();
-        }
-
-        /// <summary>Performs a UPSERT (update-or-insert) request.</summary>
-        /// <param name="upsertRequest">The upsert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with no data as result.</returns>
-        public async Task UpsertAsync(UpsertRequest upsertRequest, CancellationToken cancellationToken)
-        {
-            await RequestAsync(upsertRequest, cancellationToken).ConfigureAwait(false);
-        }
-
-        /// <summary>Performs a UPSERT (update-or-insert) request.</summary>
-        /// <param name="upsertRequest">The upsert request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <typeparam name="T">The class for object mapping.</typeparam>
-        /// <returns>The <see cref="Task" /> with no data as result.</returns>
-        public async Task UpsertAsync<T>(UpsertRequest<T> upsertRequest, CancellationToken cancellationToken)
-        {
-            await RequestAsync(upsertRequest, cancellationToken).ConfigureAwait(false);
+            return await (await RequestListAsyncAsync(clientMessage, cancellationToken).ConfigureAwait(false))
+                       .ConfigureAwait(false);
         }
 
         private IEnumerable<T> MapCollection<T>(IEnumerable<MessagePackObject> source)
@@ -296,6 +196,18 @@ namespace Tarantool.Client
                         var t = MessagePackObjectMapper.Map<T>(x);
                         return t;
                     });
+        }
+
+        /// <summary>Performs a general request.</summary>
+        /// <param name="clientMessage">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with Task with IList of MessagePackObject as result.</returns>
+        private async Task<Task<IList<MessagePackObject>>> RequestListAsyncAsync(
+            ClientMessageBase clientMessage,
+            CancellationToken cancellationToken)
+        {
+            var resultTask = await RequestAsyncAsync(clientMessage, cancellationToken).ConfigureAwait(false);
+            return resultTask.ContinueWith(t => t.Result.AsList(), cancellationToken);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Tarantool.Client
                 Tuple = new List<object> { 88, "Some name", 1800 }
             });
 
-            var result = await tarantoolClient.DeleteAsync(new DeleteRequest
+            var result = await tarantoolClient.RequestListAsync(new DeleteRequest
             {
                 SpaceId = testSpaceId,
                 Key = new List<object> { 88 }

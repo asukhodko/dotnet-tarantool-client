@@ -19,10 +19,10 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" />.</returns>
         Task ConnectAsync(CancellationToken cancellationToken);
 
-        /// <summary>Send request to Tarantool server and get response.</summary>
+        /// <summary>Send request to Tarantool server.</summary>
         /// <param name="clientMessage">The client message.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The <see cref="Task" /> with response.</returns>
-        Task<MessagePackObject> RequestAsync(ClientMessageBase clientMessage, CancellationToken cancellationToken);
+        /// <returns>The <see cref="Task" /> for awaiting the next task with response.</returns>
+        Task<Task<MessagePackObject>> RequestAsync(ClientMessageBase clientMessage, CancellationToken cancellationToken);
     }
 }

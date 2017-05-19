@@ -16,7 +16,7 @@ namespace Tarantool.Client
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
-            var result = await tarantoolClient.SelectAsync(new SelectRequest
+            var result = await tarantoolClient.RequestListAsync(new SelectRequest
             {
                 SpaceId = testSpaceId,
                 Iterator = Iterator.All
@@ -37,7 +37,7 @@ namespace Tarantool.Client
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
-            var result = await tarantoolClient.SelectAsync(new SelectRequest
+            var result = await tarantoolClient.RequestListAsync(new SelectRequest
             {
                 SpaceId = testSpaceId,
                 Key = new List<dynamic> { 1 }
@@ -53,7 +53,7 @@ namespace Tarantool.Client
             var tarantoolClient = TarantoolClient.Create("mytestuser:mytestpass@localhost:3301");
             var testSpaceId = (await tarantoolClient.FindSpaceByNameAsync("test")).SpaceId;
 
-            var result = await tarantoolClient.SelectAsync(new SelectRequest
+            var result = await tarantoolClient.RequestListAsync(new SelectRequest
             {
                 SpaceId = testSpaceId,
                 Key = new object[] { 3 }

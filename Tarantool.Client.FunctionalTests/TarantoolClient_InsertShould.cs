@@ -23,7 +23,7 @@ namespace Tarantool.Client
 
             try
             {
-                var result = await tarantoolClient.InsertAsync(new InsertRequest
+                var result = await tarantoolClient.RequestListAsync(new InsertRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 99, "Some name", 1900 }
@@ -68,7 +68,7 @@ namespace Tarantool.Client
 
             try
             {
-                var result = await tarantoolClient.InsertAsync(new InsertRequest<MyTestEntity>
+                var result = await await tarantoolClient.RequestAsyncAsync<MyTestEntity>(new InsertRequest<MyTestEntity>
                 {
                     SpaceId = testSpaceId,
                     Tuple = new MyTestEntity

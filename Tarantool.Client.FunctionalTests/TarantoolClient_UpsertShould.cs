@@ -18,7 +18,7 @@ namespace Tarantool.Client
 
             try
             {
-                await tarantoolClient.UpsertAsync(new UpsertRequest
+                await tarantoolClient.RequestAsync(new UpsertRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 55, "Some name", 1550 },
@@ -33,7 +33,7 @@ namespace Tarantool.Client
                     }
                 });
 
-                var result = await tarantoolClient.SelectAsync(new SelectRequest
+                var result = await tarantoolClient.RequestListAsync(new SelectRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 55 }
@@ -66,7 +66,7 @@ namespace Tarantool.Client
                     Tuple = new List<object> { 44, "Some name", 1400 }
                 });
 
-                await tarantoolClient.UpsertAsync(new UpsertRequest
+                await tarantoolClient.RequestAsync(new UpsertRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 44, "Some name", 1440 },
@@ -81,7 +81,7 @@ namespace Tarantool.Client
                     }
                 });
 
-                var result = await tarantoolClient.SelectAsync(new SelectRequest
+                var result = await tarantoolClient.RequestListAsync(new SelectRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 44 }

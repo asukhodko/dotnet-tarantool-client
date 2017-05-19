@@ -25,7 +25,7 @@ namespace Tarantool.Client
                     Tuple = new List<object> { 77, "Some name", 1700 }
                 });
 
-                var result = await tarantoolClient.ReplaceAsync(new ReplaceRequest
+                var result = await tarantoolClient.RequestListAsync(new ReplaceRequest
                 {
                     SpaceId = testSpaceId,
                     Tuple = new List<object> { 77, "Some new name", 1777 }
@@ -74,7 +74,7 @@ namespace Tarantool.Client
                     Tuple = new List<object> { 76, "Some name", 1700 }
                 });
 
-                var result = await tarantoolClient.ReplaceAsync(new ReplaceRequest<MyTestEntity>
+                var result = await await tarantoolClient.RequestAsyncAsync<MyTestEntity>(new ReplaceRequest<MyTestEntity>
                 {
                     SpaceId = testSpaceId,
                     Tuple = new MyTestEntity

@@ -38,11 +38,27 @@ namespace Tarantool.Client
         /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
         Task<IList<T>> InsertAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>Inserts entity into space.</summary>
+        /// <param name="entity">The entity for insert.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with inserted data as result.</returns>
+        Task<Task<IList<T>>> InsertAsyncAsync(
+            T entity,
+            CancellationToken cancellationToken = default(CancellationToken));
+
         /// <summary>Replaces entity in space.</summary>
         /// <param name="entity">The entity for replace.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
         Task<IList<T>> ReplaceAsync(T entity, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>Replaces entity in space.</summary>
+        /// <param name="entity">The entity for replace.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> with replaced data as result.</returns>
+        Task<Task<IList<T>>> ReplaceAsyncAsync(
+            T entity,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>Searches entity by primary key and updates it if found or inserts it if not found.</summary>
         /// <param name="entity">The entity for replace.</param>
@@ -50,6 +66,16 @@ namespace Tarantool.Client
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The <see cref="Task" /> for awaiting completion.</returns>
         Task UpsertAsync(
+            T entity,
+            UpdateDefinition<T> updateDefinition,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>Searches entity by primary key and updates it if found or inserts it if not found.</summary>
+        /// <param name="entity">The entity for replace.</param>
+        /// <param name="updateDefinition">The update operations list.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The <see cref="Task" /> for awaiting completion.</returns>
+        Task<Task> UpsertAsyncAsync(
             T entity,
             UpdateDefinition<T> updateDefinition,
             CancellationToken cancellationToken = default(CancellationToken));

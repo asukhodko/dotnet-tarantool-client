@@ -24,7 +24,7 @@ namespace Tarantool.Client
                     Tuple = new List<object> { 66, "Some name", 1600 }
                 });
 
-                var result = await tarantoolClient.UpdateAsync(new UpdateRequest
+                var result = await tarantoolClient.RequestListAsync(new UpdateRequest
                 {
                     SpaceId = testSpaceId,
                     Key = new List<object> { 66 },
